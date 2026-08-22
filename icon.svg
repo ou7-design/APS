@@ -14,17 +14,17 @@
   <rect x="8" y="8" width="496" height="496" rx="120" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="3"/>
 
   <!-- NFC PRIME Brand Icon: Stylized N with NFC Waves -->
-  <g transform="translate(0, 0)" stroke="#ffffff" fill="none" stroke-width="38" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(0, 0)" stroke="#ffffff" fill="none" stroke-width="40" stroke-linecap="round" stroke-linejoin="round">
     <!-- Left vertical and curved diagonal wave -->
-    <path d="M 140, 365 L 140, 160 C 190, 185 275, 250 372, 365" />
+    <path d="M 162, 360 L 162, 152 C 170, 172 188, 195 218, 206 C 292, 216 352, 272 352, 360" />
     
     <!-- Right vertical stem -->
-    <path d="M 372, 150 L 372, 365" />
+    <path d="M 352, 152 L 352, 360" />
     
     <!-- NFC Wave Arc 1 (Outer/Middle) -->
-    <path d="M 205, 255 C 265, 268 318, 308 335, 365" />
+    <path d="M 212, 252 C 266, 252 310, 296 310, 360" />
     
     <!-- NFC Wave Arc 2 (Inner) -->
-    <path d="M 205, 305 C 242, 312 272, 334 282, 365" />
+    <path d="M 212, 306 C 242, 306 264, 328 264, 360" />
   </g>
 </svg>
