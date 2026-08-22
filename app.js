@@ -1,58 +1,14 @@
 // ══════════════════════════════════════════
-// PWA SERVICE WORKER REGISTRATION
+// SERVICE WORKER
 // ══════════════════════════════════════════
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('[PWA] NP Prime Service Worker registered:', reg.scope))
-      .catch(err => console.error('[PWA] NP Prime Service Worker registration failed:', err));
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
 
 // ══════════════════════════════════════════
-// PWA INSTALL PROMPT & OFFLINE DETECTION
-// ══════════════════════════════════════════
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  
-  const installBanner = document.getElementById('pwa-install-banner');
-  if (installBanner) {
-    installBanner.style.display = 'flex';
-  }
-});
-
-function triggerInstallApp() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then((choiceResult) => {
-    if (choiceResult.outcome === 'accepted') {
-      console.log('[PWA] User installed NP Prime app');
-    }
-    deferredPrompt = null;
-    const installBanner = document.getElementById('pwa-install-banner');
-    if (installBanner) installBanner.style.display = 'none';
-  });
-}
-
-function updateOnlineStatus() {
-  const offlineBanner = document.getElementById('offline-banner');
-  if (offlineBanner) {
-    if (navigator.onLine) {
-      offlineBanner.classList.remove('active');
-      showToast('Tizim onlayn rejimda ishlamoqda ✨');
-    } else {
-      offlineBanner.classList.add('active');
-      showToast('Oflayn rejim: Barcha ma\'lumotlar xavfsiz saqlanmoqda ⚠️');
-    }
-  }
-}
-window.addEventListener('online', updateOnlineStatus);
-window.addEventListener('offline', updateOnlineStatus);
-
-// ══════════════════════════════════════════
-// LIGHT / DARK THEME MANAGEMENT
+// THEME MANAGEMENT (Dark Minimalist Default)
 // ══════════════════════════════════════════
 function initTheme() {
   const savedTheme = localStorage.getItem('np_theme') || 'dark';
@@ -69,7 +25,6 @@ function toggleTheme() {
   const activeTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
   localStorage.setItem('np_theme', activeTheme);
   updateThemeToggleIcon();
-  showToast(activeTheme === 'light' ? 'Yorug\' mavzuga o\'tildi' : 'Obsidian Gold mavzusi yoqildi 🌙');
 }
 
 function updateThemeToggleIcon() {
@@ -80,7 +35,7 @@ function updateThemeToggleIcon() {
 }
 
 // ══════════════════════════════════════════
-// DEFAULT PRESETS (5 NFC FORM FACTORS & FINANCES)
+// DEFAULT PRESETS (5 NFC PRODUCTS)
 // ══════════════════════════════════════════
 const DEFAULT_PRODUCTS = [
   { 
@@ -88,12 +43,9 @@ const DEFAULT_PRODUCTS = [
     name: 'NFC Classic Black', 
     unit: 'dona', 
     size: '85.5 × 54 mm',
-    material: 'Matte Black PVC / Smart Chip',
     stock: 78, 
     price: 250000, 
     cost: 55000, 
-    icon: '💳', 
-    substrate: 'sub-black',
     sold: 142 
   },
   { 
@@ -101,12 +53,9 @@ const DEFAULT_PRODUCTS = [
     name: 'NFC Classic White', 
     unit: 'dona', 
     size: '85.5 × 54 mm',
-    material: 'Studio White PVC / Smart Chip',
     stock: 54, 
     price: 250000, 
     cost: 55000, 
-    icon: '🪪', 
-    substrate: 'sub-white',
     sold: 98 
   },
   { 
@@ -114,12 +63,9 @@ const DEFAULT_PRODUCTS = [
     name: 'NFC Mini White', 
     unit: 'dona', 
     size: '22 × 30 mm',
-    material: 'Compact White Keycard Tag',
     stock: 110, 
     price: 150000, 
     cost: 35000, 
-    icon: '🏷️', 
-    substrate: 'sub-mini',
     sold: 160 
   },
   { 
@@ -127,12 +73,9 @@ const DEFAULT_PRODUCTS = [
     name: 'NFC Round Black', 
     unit: 'dona', 
     size: 'Ø 25 mm',
-    material: 'Matte Black NFC Coin / Token',
     stock: 135, 
     price: 150000, 
     cost: 30000, 
-    icon: '🪙', 
-    substrate: 'sub-black',
     sold: 185 
   },
   { 
@@ -140,12 +83,9 @@ const DEFAULT_PRODUCTS = [
     name: 'NFC Round White', 
     unit: 'dona', 
     size: 'Ø 25 mm',
-    material: 'Studio White NFC Coin / Token',
     stock: 92, 
     price: 150000, 
     cost: 30000, 
-    icon: '🔘', 
-    substrate: 'sub-white',
     sold: 115 
   }
 ];
@@ -155,52 +95,46 @@ const DEFAULT_CLIENTS = [
     id: 'c1', 
     name: 'Akmal Rahimov', 
     phone: '+998 90 123 45 67', 
-    address: 'IT Park, Mirzo Ulug\'bek tumani', 
+    address: 'IT Park, Toshkent', 
     totalSpend: 2500000, 
     debt: 250000, 
     history: [
-      { date: 'Bugun', type: 'Karta', desc: 'NFC Classic Black (2 dona) buyurtma qilindi', amount: 550000 },
-      { date: '12-Avgust', type: 'Nasiya', desc: 'VIP Shaxsiy NFC Karta buyurtmasi', amount: 250000 }
-    ], 
-    status: 'VIP' 
+      { date: 'Bugun', type: 'Karta', desc: 'NFC Classic Black (2 dona)', amount: 550000 },
+      { date: '12-Avg', type: 'Nasiya', desc: 'Shaxsiy NFC Karta', amount: 250000 }
+    ]
   },
   { 
     id: 'c2', 
     name: 'Hilola Karimova', 
     phone: '+998 93 456 78 90', 
-    address: 'Artel Media Markazi, Shayxontohur', 
+    address: 'Artel Media, Toshkent', 
     totalSpend: 1850000, 
     debt: 0, 
     history: [
-      { date: 'Kecha', type: 'Naqd', desc: 'NFC Classic White buyurtma qilindi', amount: 240000 },
-      { date: '04-Avgust', type: 'Karta', desc: 'Kompaniya jamoasi uchun 5 ta mini tag', amount: 750000 }
-    ], 
-    status: 'Faol' 
+      { date: 'Kecha', type: 'Naqd', desc: 'NFC Classic White', amount: 240000 }
+    ]
   },
   { 
     id: 'c3', 
     name: 'Bobur Mirzayev', 
     phone: '+998 94 987 65 43', 
-    address: 'Rayhon Lounge & Restoran, Chilonzor', 
+    address: 'Rayhon Lounge, Toshkent', 
     totalSpend: 3200000, 
     debt: 450000, 
     history: [
-      { date: 'Bugun', type: 'Nasiya', desc: 'Stollar uchun 5 ta Round Black Coin', amount: 700000 },
-      { date: '28-Iyul', type: 'To\'lov', desc: 'Qarz to\'lovi amalga oshirildi', amount: 300000 }
-    ], 
-    status: 'VIP' 
+      { date: 'Bugun', type: 'Nasiya', desc: '5 ta Round Black Coin', amount: 700000 }
+    ]
   },
   { 
     id: 'c4', 
     name: 'Sardor Aliyev', 
     phone: '+998 97 111 22 33', 
-    address: 'Freelance Studio, Yunusobod', 
+    address: 'Freelance Studio, Toshkent', 
     totalSpend: 400000, 
     debt: 0, 
     history: [
-      { date: 'Bugun', type: 'Karta', desc: 'NFC Classic Black (Shaxsiy dizayn)', amount: 280000 }
-    ], 
-    status: 'Yangi' 
+      { date: 'Bugun', type: 'Karta', desc: 'NFC Classic Black', amount: 280000 }
+    ]
   }
 ];
 
@@ -210,7 +144,7 @@ const DEFAULT_ORDERS = [
     clientId: 'c1', 
     clientName: 'Akmal Rahimov', 
     clientPhone: '+998 90 123 45 67',
-    clientAddress: 'IT Park, Mirzo Ulug\'bek tumani',
+    clientAddress: 'IT Park, Toshkent',
     items: [
       { 
         productId: 'prod-1', 
@@ -221,10 +155,9 @@ const DEFAULT_ORDERS = [
         cost: 55000,
         specs: { 
           name: 'Akmal Rahimov', 
-          role: 'Chief Executive Officer', 
+          role: 'CEO', 
           designNo: '#12', 
-          insta: '@akmal_tech',
-          email: 'akmal@itpark.uz'
+          insta: '@akmal_tech'
         } 
       }
     ], 
@@ -238,7 +171,7 @@ const DEFAULT_ORDERS = [
     clientId: 'c2', 
     clientName: 'Hilola Karimova', 
     clientPhone: '+998 93 456 78 90',
-    clientAddress: 'Artel Media Markazi, Shayxontohur',
+    clientAddress: 'Artel Media, Toshkent',
     items: [
       { 
         productId: 'prod-2', 
@@ -251,8 +184,7 @@ const DEFAULT_ORDERS = [
           name: 'Hilola Karimova', 
           role: 'Art Director', 
           designNo: '#05', 
-          insta: '@hilola_art',
-          email: 'hilola@artel.uz'
+          insta: '@hilola_art'
         } 
       }
     ], 
@@ -266,7 +198,7 @@ const DEFAULT_ORDERS = [
     clientId: 'c3', 
     clientName: 'Bobur Mirzayev', 
     clientPhone: '+998 94 987 65 43',
-    clientAddress: 'Rayhon Lounge & Restoran, Chilonzor',
+    clientAddress: 'Rayhon Lounge, Toshkent',
     items: [
       { 
         productId: 'prod-4', 
@@ -277,10 +209,9 @@ const DEFAULT_ORDERS = [
         cost: 30000,
         specs: { 
           name: 'Rayhon Lounge', 
-          role: 'Contactless Smart Menu', 
+          role: 'Menu Tag', 
           designNo: '#01', 
-          insta: '@rayhon_tashkent',
-          email: 'info@rayhon.uz'
+          insta: '@rayhon'
         } 
       }
     ], 
@@ -292,14 +223,14 @@ const DEFAULT_ORDERS = [
 ];
 
 const DEFAULT_EXPENSES = [
-  { id: 'exp-1', category: 'Pechat & Bosma', amount: 320000, desc: 'UV Bo\'yoq va lazer primeri to\'plami', date: '21-Avgust' },
-  { id: 'exp-2', category: 'Yetkazib berish', amount: 145000, desc: 'Yandex Delivery (5 ta buyurtma yetkazish)', date: 'Bugun' },
-  { id: 'exp-3', category: 'Marketing & Reklama', amount: 450000, desc: 'Instagram Target reklama kampaniyasi', date: '20-Avgust' },
-  { id: 'exp-4', category: 'Qadoqlash', amount: 180000, desc: 'Obsidian Gold sovg\'abop qutilar (50 dona)', date: '19-Avgust' }
+  { id: 'exp-1', category: 'Pechat & Bosma', amount: 320000, desc: 'UV Bo\'yoq to\'plami', date: '21-Avg' },
+  { id: 'exp-2', category: 'Yetkazib berish', amount: 145000, desc: 'Yandex yetkazish', date: 'Bugun' },
+  { id: 'exp-3', category: 'Marketing', amount: 450000, desc: 'Target reklama', date: '20-Avg' },
+  { id: 'exp-4', category: 'Qadoqlash', amount: 180000, desc: 'Sovg\'abop qutilar', date: '19-Avg' }
 ];
 
 // ══════════════════════════════════════════
-// APP STATE MANAGER
+// STATE
 // ══════════════════════════════════════════
 const State = {
   products: [],
@@ -326,7 +257,6 @@ const State = {
   addOrder(order) {
     this.orders.unshift(order);
 
-    // Deduct stock and record sold counts
     order.items.forEach(item => {
       const prod = this.products.find(p => p.id === item.productId);
       if (prod) {
@@ -335,26 +265,15 @@ const State = {
       }
     });
 
-    // Update Client spend & history
     const client = this.clients.find(c => c.id === order.clientId);
     if (client) {
       client.totalSpend += order.total;
-      const desc = `${order.items.map(i => `${i.qty}x ${i.name} (${i.unitPrice.toLocaleString()} UZS)`).join(', ')}`;
+      const desc = `${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}`;
       if (order.payment === 'Nasiya') {
         client.debt += order.total;
-        client.history.unshift({
-          date: 'Bugun',
-          type: 'Nasiya',
-          desc: `Qarzga buyurtma: ${desc}`,
-          amount: order.total
-        });
+        client.history.unshift({ date: 'Bugun', type: 'Nasiya', desc: `Qarz: ${desc}`, amount: order.total });
       } else {
-        client.history.unshift({
-          date: 'Bugun',
-          type: order.payment,
-          desc: `Sotib olindi: ${desc}`,
-          amount: order.total
-        });
+        client.history.unshift({ date: 'Bugun', type: order.payment, desc: desc, amount: order.total });
       }
     }
     this.save();
@@ -389,7 +308,7 @@ const State = {
       client.history.unshift({
         date: 'Bugun',
         type: 'To\'lov',
-        desc: 'Nasiya qarz to\'lovi qabul qilindi',
+        desc: 'Qarz to\'landi',
         amount: paid
       });
       this.save();
@@ -404,7 +323,6 @@ const State = {
     if (order && order.status !== 'Qaytarildi') {
       order.status = 'Qaytarildi';
       
-      // Restore stock
       order.items.forEach(item => {
         const prod = this.products.find(p => p.id === item.productId);
         if (prod) {
@@ -413,7 +331,6 @@ const State = {
         }
       });
 
-      // Deduct from client spend
       const client = this.clients.find(c => c.id === order.clientId);
       if (client) {
         client.totalSpend = Math.max(0, client.totalSpend - order.total);
@@ -423,7 +340,7 @@ const State = {
         client.history.unshift({
           date: 'Bugun',
           type: 'Qaytarish',
-          desc: `Buyurtma (#${order.id}) bekor qilindi`,
+          desc: `#${order.id} bekor qilindi`,
           amount: order.total
         });
       }
@@ -438,9 +355,7 @@ const State = {
     const prod = this.products.find(p => p.id === productId);
     if (prod) {
       prod.stock += qty;
-      if (newCost && newCost > 0) {
-        prod.cost = newCost;
-      }
+      if (newCost && newCost > 0) prod.cost = newCost;
       this.save();
       renderTab(currentTab);
       return true;
@@ -456,8 +371,7 @@ const State = {
       address,
       totalSpend: 0,
       debt: 0,
-      history: [],
-      status: 'Yangi'
+      history: []
     };
     this.clients.unshift(newClient);
     this.save();
@@ -465,7 +379,6 @@ const State = {
     return newClient;
   },
 
-  // Calculate Real Financial Metrics
   getFinancials() {
     let totalRevenue = 0;
     let totalTannarx = 0;
@@ -501,7 +414,6 @@ const State = {
   }
 };
 
-// Initialize State
 State.init();
 
 // ══════════════════════════════════════════
@@ -513,7 +425,7 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2000);
 }
 
 function updateClock() {
@@ -528,18 +440,18 @@ setInterval(updateClock, 10000);
 
 function updateBadges() {
   const badge = document.getElementById('orders-badge');
-  const activeOrders = State.orders.filter(o => o.status === 'Kutilmoqda' || o.status === 'Tayyorlanmoqda' || o.status === 'Jo\'natildi').length;
+  const activeOrders = State.orders.filter(o => o.status === 'Kutilmoqda' || o.status === 'Tayyorlanmoqda').length;
   if (badge) {
     badge.textContent = activeOrders;
-    badge.style.display = activeOrders > 0 ? 'flex' : 'none';
+    badge.style.display = activeOrders > 0 ? 'inline-block' : 'none';
   }
 }
 
 // ══════════════════════════════════════════
-// PIN SECURITY LOGIC (PIN: 7777)
+// PIN (7777)
 // ══════════════════════════════════════════
 let pin = '';
-const CORRECT_PIN = '7777'; // Updated to 7777 as requested
+const CORRECT_PIN = '7777';
 let pinLocked = false;
 
 const keypad = document.getElementById('keypad');
@@ -560,17 +472,14 @@ if (keypad) {
       if (pin === CORRECT_PIN) {
         pinLocked = true;
         highlightAllDots(true);
-        setTimeout(openApp, 250);
+        setTimeout(openApp, 200);
       } else {
         pinLocked = true;
         highlightAllDots(false);
         setTimeout(() => {
-          shakeDots();
-          setTimeout(() => {
-            clearDots();
-            pinLocked = false;
-          }, 500);
-        }, 100);
+          clearDots();
+          pinLocked = false;
+        }, 400);
       }
     }
   });
@@ -579,17 +488,13 @@ if (keypad) {
 function updateDots() {
   for (let i = 1; i <= 4; i++) {
     const dot = document.getElementById('d' + i);
-    if (dot) {
-      dot.classList.toggle('filled', i <= pin.length);
-      dot.classList.remove('error');
-    }
+    if (dot) dot.classList.toggle('filled', i <= pin.length);
   }
 }
 function highlightAllDots(success) {
   for (let i = 1; i <= 4; i++) {
     const dot = document.getElementById('d' + i);
     if (dot && !success) {
-      dot.classList.remove('filled');
       dot.classList.add('error');
     }
   }
@@ -598,30 +503,20 @@ function clearDots() {
   pin = '';
   for (let i = 1; i <= 4; i++) {
     const dot = document.getElementById('d' + i);
-    if (dot) dot.classList.remove('filled', 'error');
+    if (dot) {
+      dot.classList.remove('filled');
+      dot.classList.remove('error');
+    }
   }
-}
-function shakeDots() {
-  const dots = document.getElementById('pin-dots');
-  if (!dots) return;
-  let count = 0;
-  const shake = () => {
-    if (count >= 5) { dots.style.transform = ''; return; }
-    dots.style.transform = `translateX(${count % 2 === 0 ? -8 : 8}px)`;
-    count++;
-    setTimeout(shake, 80);
-  };
-  shake();
 }
 
 // ══════════════════════════════════════════
-// APP NAVIGATION
+// NAVIGATION
 // ══════════════════════════════════════════
 function openApp() {
   document.getElementById('pin-screen').classList.remove('active');
   document.getElementById('app-screen').classList.add('active');
   initTheme();
-  updateOnlineStatus();
   renderTab('dashboard');
 }
 
@@ -636,33 +531,18 @@ function renderTab(tab) {
   const body = document.getElementById('app-body');
   if (!body) return;
 
-  body.innerHTML = `
-    <div class="skeleton skeleton-title"></div>
-    <div class="skeleton skeleton-card"></div>
-    <div class="skeleton skeleton-card"></div>
-  `;
+  body.innerHTML = getTabContent(tab);
+  body.scrollTop = 0;
 
-  setTimeout(() => {
-    body.innerHTML = getTabContent(tab);
-    body.scrollTop = 0;
+  const fab = document.getElementById('fab-btn');
+  if (fab) {
+    fab.style.display = ['orders', 'expenses', 'products', 'clients'].includes(tab) ? 'flex' : 'none';
+  }
 
-    const fab = document.getElementById('fab-btn');
-    if (fab) {
-      if (['orders', 'expenses', 'products', 'clients'].includes(tab)) {
-        fab.style.display = 'flex';
-      } else {
-        fab.style.display = 'none';
-      }
-    }
-
-    if (tab === 'dashboard') {
-      updateTodayDate();
-    }
-    if (tab === 'analytics') {
-      setTimeout(() => drawChart('week', 'chart-bars-tab', 'chart-labels-tab'), 50);
-    }
-    updateBadges();
-  }, 80);
+  if (tab === 'analytics') {
+    setTimeout(() => drawChart('week', 'chart-bars-tab', 'chart-labels-tab'), 40);
+  }
+  updateBadges();
 }
 
 document.querySelectorAll('.nav-item').forEach(btn => {
@@ -670,7 +550,7 @@ document.querySelectorAll('.nav-item').forEach(btn => {
 });
 
 // ══════════════════════════════════════════
-// DYNAMIC TAB CONTENTS RENDERER
+// TAB CONTENT RENDERERS (CLEAN & MINIMAL)
 // ══════════════════════════════════════════
 function getTabContent(tab) {
   switch(tab) {
@@ -687,134 +567,51 @@ function getTabContent(tab) {
 // ── 1. Dashboard Tab
 function dashboardContent() {
   const fin = State.getFinancials();
-  let qarzliMijozlar = 0;
   let jamiQarzSum = 0;
+  State.clients.forEach(c => { if (c.debt > 0) jamiQarzSum += c.debt; });
 
-  State.clients.forEach(c => {
-    if (c.debt > 0) {
-      qarzliMijozlar++;
-      jamiQarzSum += c.debt;
-    }
-  });
-
-  const displayProfit = (fin.netProfit / 1000000).toFixed(2) + 'M';
-  const displayQarz = (jamiQarzSum / 1000000).toFixed(2) + 'M';
-  const displayRevenue = (fin.totalRevenue / 1000000).toFixed(2) + 'M';
-
-  const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  const showBannerStyle = (!isInstalled && deferredPrompt) ? 'flex' : 'none';
+  const recentOrders = State.orders.slice(0, 4).map(o => renderOrderSingleItem(o)).join('') || `<div style="color:var(--text-dim);font-size:12px;text-align:center;padding:16px 0;">Buyurtmalar yo'q</div>`;
 
   return `
-    <div id="pwa-install-banner" class="install-app-banner" style="display: ${showBannerStyle};">
-      <div class="install-app-banner-info">
-        <span class="install-app-banner-logo">⚡</span>
-        <div class="install-app-banner-text">
-          <h4>NP PRIME Manager</h4>
-          <p>Tezkor smart vizitka CRM ilovasini o'rnating</p>
+    <div class="summary-banner" onclick="openDetail('analytics')" style="cursor:pointer;">
+      <div class="sb-row">
+        <div>
+          <div class="sb-label">Sof Foyda</div>
+          <div class="sb-val">${fin.netProfit.toLocaleString()} UZS</div>
         </div>
       </div>
-      <button class="btn-install" onclick="triggerInstallApp()">O'rnatish</button>
-    </div>
-
-    <div class="summary-banner">
-      <div class="sb-left">
-        <div class="sb-label">Sof Foyda (Joriy Oy)</div>
-        <div class="sb-val" style="color:var(--gold);">${displayProfit} UZS</div>
-        <div class="sb-sub">Kirim: ${displayRevenue} UZS • Marja: ${fin.marginPercent}%</div>
-      </div>
-      <div class="sb-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-        <div class="theme-switch-wrap">
-          <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Mavzuni almashtirish">☀️</button>
-        </div>
-        <div class="sb-date" id="today-date" style="margin-top: 6px;">--/--/--</div>
+      <div class="sb-sub-stats">
+        <span>Kirim: <b>${(fin.totalRevenue/1000000).toFixed(2)}M</b></span>
+        <span>Xarajat: <b>${(fin.totalAllCosts/1000000).toFixed(2)}M</b></span>
+        <span>Marja: <b>${fin.marginPercent}%</b></span>
       </div>
     </div>
 
-    <p class="sec-label">Bugungi asosiy ko'rsatkichlar</p>
     <div class="stat-grid">
-      <div class="stat-card gold" onclick="openDetail('orders')">
-        <div class="sc-icon">📋</div>
-        <div class="sc-val">${State.orders.length}</div>
-        <div class="sc-label">NFC Buyurtmalar</div>
-        <div class="sc-delta">${State.orders.filter(o => o.status === 'Kutilmoqda' || o.status === 'Tayyorlanmoqda').length} ta faol ish jarayonida</div>
+      <div class="stat-card" onclick="openDetail('orders')">
+        <div class="sc-val">${State.orders.length} ta</div>
+        <div class="sc-label">Buyurtmalar</div>
       </div>
-      <div class="stat-card coral" onclick="openDetail('expenses')">
-        <div class="sc-icon">💸</div>
+      <div class="stat-card" onclick="openDetail('expenses')">
         <div class="sc-val">${(fin.totalDirectExpenses/1000).toLocaleString()}k</div>
-        <div class="sc-label">Operatsion Chiqimlar</div>
-        <div class="sc-delta">${State.expenses.length} ta xarajat qaydi</div>
+        <div class="sc-label">Chiqimlar</div>
       </div>
-      <div class="stat-card teal" onclick="openDetail('products')">
-        <div class="sc-icon">💳</div>
-        <div class="sc-val">${State.products.reduce((acc, p) => acc + p.stock, 0)}</div>
-        <div class="sc-label">Ombordagi Kartalar</div>
-        <div class="sc-delta">5 xil NFC form-faktor</div>
+      <div class="stat-card" onclick="openDetail('products')">
+        <div class="sc-val">${State.products.reduce((acc, p) => acc + p.stock, 0)} dona</div>
+        <div class="sc-label">Ombor qoldig'i</div>
       </div>
-      <div class="stat-card orange" onclick="openDetail('debts')">
-        <div class="sc-icon">⏳</div>
-        <div class="sc-val">${displayQarz} UZS</div>
-        <div class="sc-label">Nasiya (Qarzlar)</div>
-        <div class="sc-delta">${qarzliMijozlar} ta mijozda qarz bor</div>
+      <div class="stat-card" onclick="openDetail('debts')">
+        <div class="sc-val">${(jamiQarzSum/1000).toLocaleString()}k</div>
+        <div class="sc-label">Qarzlar (Nasiya)</div>
       </div>
     </div>
 
-    <p class="sec-label">Tizim boshqaruv modullari</p>
-    <div class="module-list">
-      <div class="module-card gold" onclick="openDetail('orders')">
-        <div class="mc-icon">📋</div>
-        <div class="mc-body">
-          <div class="mc-title">NFC Buyurtmalar</div>
-          <div class="mc-sub">Dinamik narxlash, shaxsiy dizayn va Telegram dispatch</div>
-        </div>
-        <div class="mc-right">
-          <span class="mc-badge gold">${State.orders.length} ta</span>
-          <span class="mc-arrow">›</span>
-        </div>
-      </div>
-      <div class="module-card coral" onclick="openDetail('expenses')">
-        <div class="mc-icon">💸</div>
-        <div class="mc-body">
-          <div class="mc-title">Xarajatlar & Chiqimlar</div>
-          <div class="mc-sub">UV pechat, yetkazib berish, target reklama va qadoqlash</div>
-        </div>
-        <div class="mc-right">
-          <span class="mc-badge coral">${State.expenses.length} ta</span>
-          <span class="mc-arrow">›</span>
-        </div>
-      </div>
-      <div class="module-card teal" onclick="openDetail('products')">
-        <div class="mc-icon">💳</div>
-        <div class="mc-body">
-          <div class="mc-title">NFC Form Faktorlar (Ombor)</div>
-          <div class="mc-sub">Classic Black, White, Mini Tag va Round Coin qoldiqlari</div>
-        </div>
-        <div class="mc-right">
-          <span class="mc-badge teal">5 tur</span>
-          <span class="mc-arrow">›</span>
-        </div>
-      </div>
-      <div class="module-card blue" onclick="openDetail('clients')">
-        <div class="mc-icon">👥</div>
-        <div class="mc-body">
-          <div class="mc-title">Mijozlar & Brendlar</div>
-          <div class="mc-sub">VIP mijozlar profili, xaridlar tarixi va aloqa ma'lumotlari</div>
-        </div>
-        <div class="mc-right">
-          <span class="mc-badge blue">${State.clients.length} ta</span>
-          <span class="mc-arrow">›</span>
-        </div>
-      </div>
-      <div class="module-card green" onclick="openDetail('analytics')">
-        <div class="mc-icon">📈</div>
-        <div class="mc-body">
-          <div class="mc-title">Moliya & Rentabellik</div>
-          <div class="mc-sub">Haqiqiy Sof Foyda, Tannarx va Sotuv grafiklari</div>
-        </div>
-        <div class="mc-right">
-          <span class="mc-badge green">${fin.marginPercent}%</span>
-          <span class="mc-arrow">›</span>
-        </div>
-      </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; margin-bottom:6px;">
+      <p class="sec-label" style="margin:0;">Oxirgi buyurtmalar</p>
+      <button onclick="openDetail('orders')" class="icon-text-btn">Barchasi →</button>
+    </div>
+    <div class="wide-card">
+      ${recentOrders}
     </div>
   `;
 }
@@ -825,52 +622,33 @@ let orderSearchQuery = '';
 
 function ordersTabContent() {
   const activeOrders = State.orders;
-  let listHtml = '';
-  
-  if (activeOrders.length === 0) {
-    listHtml = `<div style="text-align:center;padding:32px;color:var(--muted)">Buyurtmalar mavjud emas.</div>`;
-  } else {
-    listHtml = activeOrders.slice(0, 5).map(ord => renderOrderSingleItem(ord)).join('');
-  }
+  const listHtml = activeOrders.slice(0, 6).map(ord => renderOrderSingleItem(ord)).join('') || `<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:12px;">Buyurtmalar yo'q</div>`;
 
   return `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:8px;">
-      <p class="sec-label" style="margin:0;">Oxirgi buyurtmalar ro'yxati</p>
-      <button onclick="showAddOrderForm()" class="icon-text-btn" style="color:var(--gold);">+ Yangi Buyurtma</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <p class="sec-label" style="margin:0;">Buyurtmalar (${State.orders.length})</p>
+      <button onclick="showAddOrderForm()" class="icon-text-btn" style="color:var(--gold);">+ Yangi</button>
     </div>
     <div class="wide-card">
       ${listHtml}
-    </div>
-    <div style="text-align:center; padding:8px 0;">
-      <button onclick="openDetail('orders')" class="btn-primary" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); width:auto; padding:10px 24px; font-size:12px; border-radius:20px;">Barcha buyurtmalarni ko'rish (${State.orders.length}) →</button>
     </div>
   `;
 }
 
 function renderOrderSingleItem(ord) {
-  let statusClass = 'status-pending';
-  let icon = '⏳';
-  if (ord.status === 'Tayyorlanmoqda') { statusClass = 'status-prep'; icon = '⚡'; }
-  if (ord.status === 'Yetkazildi')     { statusClass = 'status-done'; icon = '✓'; }
-  if (ord.status === 'Qaytarildi')    { statusClass = 'status-debt'; icon = '↩️'; }
-
-  const itemSummary = ord.items.map(i => `${i.qty}x ${i.name}`).join(', ');
-  const specHint = ord.items[0]?.specs?.designNo ? `Naqsh: ${ord.items[0].specs.designNo}` : '';
+  const item = ord.items[0] || {};
+  const isPending = ord.status === 'Kutilmoqda' || ord.status === 'Tayyorlanmoqda';
+  const isDone = ord.status === 'Yetkazildi';
 
   return `
     <div class="order-item" onclick="showOrderActions('${ord.id}')" style="cursor:pointer;">
-      <div class="oi-avatar">${ord.clientName ? ord.clientName[0] : 'N'}</div>
       <div class="oi-body">
-        <div class="oi-header-row">
-          <span class="oi-id">#${ord.id}</span>
-          <span class="oi-name">${ord.clientName}</span>
-        </div>
-        <div class="oi-detail">${itemSummary} • ${ord.date}</div>
-        ${specHint ? `<div class="oi-specs">${specHint} • ${ord.payment}</div>` : `<div class="oi-specs">${ord.payment}</div>`}
+        <div class="oi-name">#${ord.id} • ${ord.clientName}</div>
+        <div class="oi-detail">${item.qty || 1}x ${item.name || 'NFC Karta'} • ${ord.date}</div>
       </div>
       <div class="oi-right">
         <div class="oi-sum">${ord.total.toLocaleString()} UZS</div>
-        <div class="status-pill ${statusClass}">${icon} ${ord.status}</div>
+        <span class="status-pill ${isDone ? 'status-done' : (ord.status === 'Qaytarildi' ? 'status-debt' : '')}">${ord.status}</span>
       </div>
     </div>
   `;
@@ -879,98 +657,78 @@ function renderOrderSingleItem(ord) {
 // ── 3. Expenses Tab
 function expensesTabContent() {
   const fin = State.getFinancials();
-  const listHtml = State.expenses.slice(0, 5).map(e => `
+  const listHtml = State.expenses.map(e => `
     <div class="order-item">
-      <div class="oi-avatar" style="background:rgba(248,113,113,0.12); color:#f87171;">💸</div>
       <div class="oi-body">
         <div class="oi-name">${e.category}</div>
         <div class="oi-detail">${e.desc} • ${e.date}</div>
       </div>
       <div class="oi-right">
-        <div class="oi-sum" style="color:#f87171;">−${e.amount.toLocaleString()} UZS</div>
+        <div class="oi-sum">−${e.amount.toLocaleString()} UZS</div>
       </div>
     </div>
-  `).join('') || `<div style="text-align:center;padding:24px;color:var(--muted)">Xarajatlar kiritilmagan.</div>`;
+  `).join('') || `<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px;">Chiqimlar kiritilmagan</div>`;
 
   return `
-    <div class="summary-banner" style="background:rgba(248,113,113,0.08); border-color:rgba(248,113,113,0.25);">
-      <div class="sb-left">
-        <div class="sb-label" style="color:#f87171;">Operatsion Xarajatlar</div>
-        <div class="sb-val" style="color:#f87171;">${fin.totalDirectExpenses.toLocaleString()} UZS</div>
-        <div class="sb-sub">${State.expenses.length} ta qayd • UV bosma, yetkazish, reklama</div>
-      </div>
+    <div class="summary-banner">
+      <div class="sb-label">Jami Chiqimlar</div>
+      <div class="sb-val">${fin.totalDirectExpenses.toLocaleString()} UZS</div>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:8px;">
-      <p class="sec-label" style="margin:0;">Oxirgi chiqimlar</p>
-      <button onclick="showAddExpenseForm()" class="icon-text-btn" style="color:#f87171;">+ Yangi Chiqim</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <p class="sec-label" style="margin:0;">Chiqimlar ro'yxati</p>
+      <button onclick="showAddExpenseForm()" class="icon-text-btn" style="color:var(--gold);">+ Chiqim</button>
     </div>
     <div class="wide-card">
       ${listHtml}
-    </div>
-    <div style="text-align:center; padding:8px 0;">
-      <button onclick="openDetail('expenses')" class="btn-primary" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); width:auto; padding:10px 24px; font-size:12px; border-radius:20px;">Barcha xarajatlar jurnali →</button>
     </div>
   `;
 }
 
 // ── 4. Products Tab
 function productsTabContent() {
-  const prodHtml = State.products.map(p => {
-    const isLow = p.stock <= 15;
-    return `
-      <div class="product-item" onclick="showAddStockForm('${p.id}')" style="cursor:pointer;">
-        <div class="pi-icon">${p.icon}</div>
-        <div class="pi-body">
-          <div class="pi-name">${p.name}</div>
-          <div class="pi-unit">${p.size} • <span class="substrate-pill ${p.substrate}">${p.material.split('/')[0]}</span></div>
-          <div class="pi-cost-hint">Tannarx: ~${p.cost.toLocaleString()} UZS</div>
-        </div>
-        <div class="pi-right">
-          <div class="pi-stock ${isLow ? 'pi-low' : ''}" style="${isLow ? 'color:#ff453a;' : 'color:var(--text)'}">${isLow ? '⚠️ ' : ''}${p.stock} dona</div>
-          <div class="pi-price">${p.price.toLocaleString()} UZS</div>
-          ${isLow ? '<div class="low-indicator" style="background:rgba(255,69,58,0.15);color:#ff453a;">Kam qoldi!</div>' : ''}
-        </div>
+  const prodHtml = State.products.map(p => `
+    <div class="product-row" onclick="showAddStockForm('${p.id}')" style="cursor:pointer;">
+      <div>
+        <div class="pr-name">${p.name}</div>
+        <div class="pr-sub">${p.size} • ${p.price.toLocaleString()} UZS</div>
       </div>
-    `;
-  }).join('');
+      <div style="text-align:right;">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;color:${p.stock <= 15 ? '#ff453a' : 'var(--text)'};">${p.stock} dona</div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:1px;">+ Kirim</div>
+      </div>
+    </div>
+  `).join('');
 
   return `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:8px;">
-      <p class="sec-label" style="margin:0;">NFC Form Faktorlari & Ombor</p>
-      <button onclick="showAddStockForm()" class="icon-text-btn" style="color:var(--gold);">📥 Kirim Qilish</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <p class="sec-label" style="margin:0;">Ombor qoldiqlari</p>
+      <button onclick="showAddStockForm()" class="icon-text-btn" style="color:var(--gold);">+ Kirim Qilish</button>
     </div>
     <div class="wide-card">
       ${prodHtml}
-    </div>
-    <div style="text-align:center;">
-      <button onclick="openDetail('products')" class="btn-primary" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); width:auto; padding:10px 24px; font-size:12px; border-radius:20px;">Omborni boshqarish →</button>
     </div>
   `;
 }
 
 // ── 5. Clients Tab
 function clientsTabContent() {
-  const clientsHtml = State.clients.map(c => {
-    const debtLabel = c.debt > 0 ? `<div class="status-pill status-debt">${c.debt.toLocaleString()} UZS qarz</div>` : `<div class="status-pill status-done">✓ Qarzsiz</div>`;
-    return `
-      <div class="order-item" onclick="showClientHistory('${c.id}')" style="cursor:pointer;">
-        <div class="oi-avatar">${c.name[0]}</div>
-        <div class="oi-body">
-          <div class="oi-name">${c.name}</div>
-          <div class="oi-detail">${c.address} • ${c.phone}</div>
-        </div>
-        <div class="oi-right">
-          ${debtLabel}
-        </div>
+  const clientsHtml = State.clients.map(c => `
+    <div class="order-item" onclick="showClientHistory('${c.id}')" style="cursor:pointer;">
+      <div class="oi-body">
+        <div class="oi-name">${c.name}</div>
+        <div class="oi-detail">${c.phone}</div>
       </div>
-    `;
-  }).join('');
+      <div class="oi-right">
+        ${c.debt > 0 ? `<span class="status-pill status-debt">${c.debt.toLocaleString()} UZS qarz</span>` : `<span style="font-size:11px;color:var(--text-dim);">Qarzsiz</span>`}
+      </div>
+    </div>
+  `).join('');
 
   return `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:8px;">
-      <p class="sec-label" style="margin:0;">Mijozlar & Brendlar bazasi</p>
-      <button onclick="showAddClientForm()" class="icon-text-btn" style="color:var(--gold);">+ Yangi Mijoz</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <p class="sec-label" style="margin:0;">Mijozlar bazasi</p>
+      <button onclick="showAddClientForm()" class="icon-text-btn" style="color:var(--gold);">+ Yangi</button>
     </div>
     <div class="wide-card">
       ${clientsHtml}
@@ -983,38 +741,37 @@ function analyticsTabContent() {
   const fin = State.getFinancials();
 
   return `
-    <div class="financial-card">
-      <div class="fc-header">
-        <span class="fc-badge">MOLIYAVIY KO'RSATKICHLAR</span>
-        <span class="fc-margin">Marja: ${fin.marginPercent}%</span>
+    <div class="summary-banner">
+      <div class="sb-label">Sof Foyda</div>
+      <div class="sb-val">${fin.netProfit.toLocaleString()} UZS</div>
+      <div class="sb-sub-stats">
+        <span>Rentabellik: <b>${fin.marginPercent}%</b></span>
       </div>
-      <div class="fc-label">Jami Sof Foyda (Aniq hisob-kitob)</div>
-      <div class="fc-profit">${fin.netProfit.toLocaleString()} UZS</div>
-      <div class="fc-divider"></div>
-      <div class="fc-grid">
-        <div class="fc-sub-item">
-          <span class="fcs-label">🟢 Jami Kirim:</span>
-          <span class="fcs-val">${fin.totalRevenue.toLocaleString()} UZS</span>
-        </div>
-        <div class="fc-sub-item">
-          <span class="fcs-label">🟡 Xomashyo Tannarxi:</span>
-          <span class="fcs-val">${fin.totalTannarx.toLocaleString()} UZS</span>
-        </div>
-        <div class="fc-sub-item">
-          <span class="fcs-label">🔴 Operatsion Chiqim:</span>
-          <span class="fcs-val">${fin.totalDirectExpenses.toLocaleString()} UZS</span>
-        </div>
-        <div class="fc-sub-item">
-          <span class="fcs-label">⚖️ Jami Xarajatlar:</span>
-          <span class="fcs-val" style="color:#ff6b6b">${fin.totalAllCosts.toLocaleString()} UZS</span>
-        </div>
+    </div>
+
+    <div class="wide-card">
+      <div class="fin-row">
+        <span class="fin-label">Jami Kirim</span>
+        <span class="fin-val">${fin.totalRevenue.toLocaleString()} UZS</span>
+      </div>
+      <div class="fin-row">
+        <span class="fin-label">Xomashyo Tannarxi</span>
+        <span class="fin-val">${fin.totalTannarx.toLocaleString()} UZS</span>
+      </div>
+      <div class="fin-row">
+        <span class="fin-label">Operatsion Chiqimlar</span>
+        <span class="fin-val">${fin.totalDirectExpenses.toLocaleString()} UZS</span>
+      </div>
+      <div class="fin-row">
+        <span class="fin-label">Jami Xarajatlar</span>
+        <span class="fin-val">${fin.totalAllCosts.toLocaleString()} UZS</span>
       </div>
     </div>
 
     <p class="sec-label">Sotuv grafigi</p>
     <div class="chart-wrap">
       <div class="chart-header">
-        <div class="chart-title">Haftalik sotuv hajmi</div>
+        <div class="chart-title">Haftalik hajm</div>
         <div class="chart-tabs">
           <button class="chart-tab active" id="tab-chart-week-inside" onclick="switchChart('week',this)">Hafta</button>
           <button class="chart-tab" id="tab-chart-month-inside" onclick="switchChart('month',this)">Oy</button>
@@ -1023,23 +780,11 @@ function analyticsTabContent() {
       <div class="chart-bars-wrap" id="chart-bars-tab"></div>
       <div class="chart-labels" id="chart-labels-tab"></div>
     </div>
-    <div style="text-align:center;">
-      <button onclick="openDetail('analytics')" class="btn-primary" style="background:var(--surface2); border:1px solid var(--border); color:var(--text); width:auto; padding:10px 24px; font-size:12px; border-radius:20px;">To'liq Moliya Hisobotini Ko'rish →</button>
-    </div>
   `;
 }
 
-function updateTodayDate() {
-  const el = document.getElementById('today-date');
-  if (!el) return;
-  const d = new Date();
-  const days = ['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
-  const months = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentyabr','Oktyabr','Noyabr','Dekabr'];
-  el.textContent = days[d.getDay()] + ', ' + d.getDate() + '-' + months[d.getMonth()];
-}
-
 // ══════════════════════════════════════════
-// DETAIL SCREENS LOGIC
+// DETAIL SCREENS
 // ══════════════════════════════════════════
 function openDetail(id) {
   document.getElementById('app-screen').style.display = 'none';
@@ -1074,23 +819,21 @@ function renderOrdersDetailList() {
     return matchesFilter && matchesSearch;
   });
 
-  document.getElementById('orders-detail-subtitle').textContent = `Jami: ${State.orders.length} ta buyurtma (${filtered.length} ta ko'rsatilmoqda)`;
-  document.getElementById('orders-stat-total').textContent = State.orders.length;
-  document.getElementById('orders-stat-done').textContent = State.orders.filter(o => o.status === 'Yetkazildi').length;
+  document.getElementById('orders-detail-subtitle').textContent = `Jami: ${State.orders.length} ta buyurtma`;
 
   const container = document.getElementById('orders-detail-list');
   if (!container) return;
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:32px;color:var(--muted)">Mos keluvchi buyurtmalar topilmadi.</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:12px;">Topilmadi</div>`;
     return;
   }
 
-  container.innerHTML = filtered.map(ord => `
-    <div class="wide-card" style="margin-bottom:10px; cursor:pointer;" onclick="showOrderActions('${ord.id}')">
-      ${renderOrderSingleItem(ord)}
+  container.innerHTML = `
+    <div class="wide-card">
+      ${filtered.map(ord => renderOrderSingleItem(ord)).join('')}
     </div>
-  `).join('');
+  `;
 }
 
 function setOrderFilter(filter, btn) {
@@ -1111,230 +854,135 @@ function filterOrdersList() {
 // ── Detail: Expenses
 function renderExpensesDetailList() {
   const fin = State.getFinancials();
-  document.getElementById('expenses-detail-subtitle').textContent = `Jami: ${State.expenses.length} ta chiqim qaydi`;
+  document.getElementById('expenses-detail-subtitle').textContent = `Jami: ${State.expenses.length} ta qayd`;
   document.getElementById('expenses-total-banner').textContent = fin.totalDirectExpenses.toLocaleString() + ' UZS';
-  document.getElementById('expenses-count-banner').textContent = `${State.expenses.length} ta operatsion chiqimlar`;
 
-  // Category breakdown
   const catSums = {};
-  State.expenses.forEach(e => {
-    catSums[e.category] = (catSums[e.category] || 0) + e.amount;
-  });
+  State.expenses.forEach(e => { catSums[e.category] = (catSums[e.category] || 0) + e.amount; });
 
   const catBreakdown = document.getElementById('expenses-category-breakdown');
   if (catBreakdown) {
     const cats = Object.keys(catSums);
-    if (cats.length === 0) {
-      catBreakdown.innerHTML = `<div style="color:var(--muted);text-align:center;font-size:12px;">Hozircha xarajat toifalari yo'q</div>`;
-    } else {
-      catBreakdown.innerHTML = cats.map(cat => `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); font-size:12px;">
-          <span style="font-weight:600; color:var(--text);">${cat}</span>
-          <span style="font-weight:700; color:#f87171;">${catSums[cat].toLocaleString()} UZS</span>
-        </div>
-      `).join('');
-    }
+    catBreakdown.innerHTML = cats.map(cat => `
+      <div class="fin-row">
+        <span class="fin-label">${cat}</span>
+        <span class="fin-val">${catSums[cat].toLocaleString()} UZS</span>
+      </div>
+    `).join('');
   }
 
   const container = document.getElementById('expenses-detail-list');
   if (!container) return;
 
-  if (State.expenses.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--muted)">Xarajatlar mavjud emas.</div>`;
-    return;
-  }
-
-  container.innerHTML = State.expenses.map(e => `
-    <div class="wide-card" style="margin-bottom:8px;">
-      <div class="order-item" style="border:none; padding:0;">
-        <div class="oi-avatar" style="background:rgba(248,113,113,0.12); color:#f87171;">💸</div>
-        <div class="oi-body">
-          <div class="oi-name">${e.category}</div>
-          <div class="oi-detail">${e.desc} • ${e.date}</div>
+  container.innerHTML = `
+    <div class="wide-card">
+      ${State.expenses.map(e => `
+        <div class="order-item">
+          <div class="oi-body">
+            <div class="oi-name">${e.category}</div>
+            <div class="oi-detail">${e.desc} • ${e.date}</div>
+          </div>
+          <div class="oi-right">
+            <div class="oi-sum">−${e.amount.toLocaleString()} UZS</div>
+            <button onclick="deleteExpenseItem('${e.id}')" style="background:transparent;border:none;color:var(--muted);font-size:10px;cursor:pointer;margin-top:2px;">O'chirish</button>
+          </div>
         </div>
-        <div class="oi-right">
-          <div class="oi-sum" style="color:#f87171;">−${e.amount.toLocaleString()} UZS</div>
-          <button onclick="deleteExpenseItem('${e.id}')" style="background:transparent; border:none; color:var(--muted); font-size:11px; margin-top:4px; cursor:pointer;">🗑️ O'chirish</button>
-        </div>
-      </div>
+      `).join('')}
     </div>
-  `).join('');
+  `;
 }
 
 function showAddExpenseForm() {
   const form = `
     <div class="form-group">
-      <label class="form-label">Xarajat toifasi</label>
+      <label class="form-label">Toifa</label>
       <select class="form-select" id="exp-category">
-        <option value="Pechat & Bosma">🎨 UV Pechat, Bo'yoq & Lenta</option>
-        <option value="Yetkazib berish">🚚 Yetkazib berish (Yandex / BTS / Pochta)</option>
-        <option value="Marketing & Reklama">📢 Marketing & Instagram Target</option>
-        <option value="Qadoqlash">📦 Sovg'abop qutilar & Lenta</option>
-        <option value="Xomashyo & Blank kartalar">💳 Xomashyo & Blank NFC kartalar</option>
-        <option value="Ofis & Kommunal">🏢 Ofis, Internet & Boshqa</option>
+        <option value="Pechat & Bosma">Pechat & Bosma</option>
+        <option value="Yetkazib berish">Yetkazib berish (Yandex/BTS)</option>
+        <option value="Marketing">Marketing & Reklama</option>
+        <option value="Qadoqlash">Qadoqlash</option>
+        <option value="Xomashyo">Blank NFC kartalar</option>
+        <option value="Boshqa">Boshqa</option>
       </select>
     </div>
     <div class="form-group">
-      <label class="form-label">Chiqim summasi (UZS)</label>
-      <input type="number" class="form-input" id="exp-amount" placeholder="Masalan: 85000" min="1">
+      <label class="form-label">Summasi (UZS)</label>
+      <input type="number" class="form-input" id="exp-amount" placeholder="Masalan: 50000" min="1">
     </div>
     <div class="form-group">
-      <label class="form-label">Tavsif / Izoh</label>
-      <input type="text" class="form-input" id="exp-desc" placeholder="Masalan: 3 ta buyurtmani Yandex orqali yetkazish">
+      <label class="form-label">Izoh</label>
+      <input type="text" class="form-input" id="exp-desc" placeholder="Tavsif">
     </div>
-    <div class="form-group">
-      <label class="form-label">Sana</label>
-      <select class="form-select" id="exp-date">
-        <option value="Bugun">Bugun</option>
-        <option value="Kecha">Kecha</option>
-      </select>
-    </div>
-    <button class="btn-primary" onclick="submitAddExpense()">💸 Xarajatni Saqlash</button>
+    <button class="btn-primary" onclick="submitAddExpense()">Saqlash</button>
   `;
-  openModal('Yangi Chiqim / Xarajat Kiritish', form);
+  openModal('Chiqim kiritish', form);
 }
 
 function submitAddExpense() {
   const category = document.getElementById('exp-category').value;
   const amount = parseInt(document.getElementById('exp-amount').value);
   const desc = document.getElementById('exp-desc').value;
-  const date = document.getElementById('exp-date').value;
 
   if (isNaN(amount) || amount <= 0 || !desc) {
-    showToast('Iltimos ma\'lumotlarni to\'liq to\'ldiring!');
+    showToast('Barcha maydonlarni to\'ldiring');
     return;
   }
 
-  State.addExpense(category, amount, desc, date);
-  showToast('Xarajat muvaffaqiyatli saqlandi va moliya yangilandi! 💸');
+  State.addExpense(category, amount, desc, 'Bugun');
+  showToast('Chiqim saqlandi');
   closeModal();
   if (document.getElementById('detail-expenses')?.classList.contains('active')) renderExpensesDetailList();
 }
 
 function deleteExpenseItem(id) {
-  if (confirm("Ushbu xarajatni o'chirmoqchimisiz?")) {
+  if (confirm("O'chirmoqchimisiz?")) {
     State.deleteExpense(id);
-    showToast("Xarajat o'chirildi!");
+    showToast("O'chirildi");
     if (document.getElementById('detail-expenses')?.classList.contains('active')) renderExpensesDetailList();
   }
 }
 
-// ── Detail: Products & Stock
+// ── Detail: Products
 function renderProductsDetailList() {
-  const totalKinds = State.products.length;
   const totalStock = State.products.reduce((acc, p) => acc + p.stock, 0);
-  const totalSold = State.products.reduce((acc, p) => acc + (p.sold || 0), 0);
-
-  document.getElementById('products-detail-subtitle').textContent = `${totalKinds} turdagi NFC kartalar mavjud (${totalStock} dona omborda)`;
-  document.getElementById('products-stat-stock').textContent = totalStock;
-  document.getElementById('products-stat-chiqim').textContent = totalSold;
+  document.getElementById('products-detail-subtitle').textContent = `Jami omborda: ${totalStock} dona`;
 
   const container = document.getElementById('products-detail-list');
   if (!container) return;
 
-  container.innerHTML = State.products.map(p => {
-    const isLow = p.stock <= 15;
-    return `
-      <div class="product-item" onclick="showAddStockForm('${p.id}')" style="cursor:pointer;">
-        <div class="pi-icon">${p.icon}</div>
-        <div class="pi-body">
-          <div class="pi-name">${p.name}</div>
-          <div class="pi-unit">${p.size} • <span class="substrate-pill ${p.substrate}">${p.material.split('/')[0]}</span></div>
-          <div class="pi-cost-hint">Tannarx: ~${p.cost.toLocaleString()} UZS • Tavsiya: ${p.price.toLocaleString()} UZS</div>
-        </div>
-        <div class="pi-right">
-          <div class="pi-stock ${isLow ? 'pi-low' : ''}" style="${isLow ? 'color:#ff453a;' : 'color:var(--text)'}">${isLow ? '⚠️ ' : ''}${p.stock} dona</div>
-          <div class="pi-price">${p.price.toLocaleString()} UZS</div>
-          ${isLow ? '<div class="low-indicator" style="background:rgba(255,69,58,0.15);color:#ff453a;">Kam qoldi!</div>' : ''}
-        </div>
+  container.innerHTML = State.products.map(p => `
+    <div class="product-row" onclick="showAddStockForm('${p.id}')" style="cursor:pointer;">
+      <div>
+        <div class="pr-name">${p.name}</div>
+        <div class="pr-sub">${p.size} • Tannarx: ${p.cost.toLocaleString()} UZS</div>
       </div>
-    `;
-  }).join('');
-}
-
-function showAddProductForm() {
-  const form = `
-    <div class="form-group">
-      <label class="form-label">NFC Form-faktor Nomi</label>
-      <input type="text" class="form-input" id="new-prod-name" placeholder="Masalan: NFC Metal Gold Card">
-    </div>
-    <div class="form-group">
-      <label class="form-label">O'lchami va Materiali</label>
-      <input type="text" class="form-input" id="new-prod-size" placeholder="Masalan: 85.5 × 54 mm, Zanglamas Po'lat">
-    </div>
-    <div class="form-grid-2">
-      <div class="form-group">
-        <label class="form-label">Tavsiya narx (UZS)</label>
-        <input type="number" class="form-input" id="new-prod-price" placeholder="450000">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Xomashyo tannarxi</label>
-        <input type="number" class="form-input" id="new-prod-cost" placeholder="120000">
+      <div style="text-align:right;">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;color:${p.stock <= 15 ? '#ff453a' : 'var(--text)'};">${p.stock} dona</div>
+        <div style="font-size:10px;color:var(--gold);margin-top:1px;">+ Kirim</div>
       </div>
     </div>
-    <button class="btn-primary" onclick="submitAddProduct()">💳 Yangi Form Faktorni Saqlash</button>
-  `;
-  openModal('Yangi NFC Form Faktor Qo\'shish', form);
-}
-
-function submitAddProduct() {
-  const name = document.getElementById('new-prod-name').value;
-  const size = document.getElementById('new-prod-size').value;
-  const price = parseInt(document.getElementById('new-prod-price').value);
-  const cost = parseInt(document.getElementById('new-prod-cost').value) || 40000;
-
-  if (!name || !size || isNaN(price)) {
-    showToast('Iltimos barcha maydonlarni to\'ldiring!');
-    return;
-  }
-
-  State.products.push({
-    id: 'prod-' + Date.now(),
-    name,
-    unit: 'dona',
-    size,
-    material: size,
-    stock: 0,
-    price,
-    cost,
-    icon: '💳',
-    substrate: 'sub-black',
-    sold: 0
-  });
-  State.save();
-  showToast('Yangi NFC mahsulot qo\'shildi! ✨');
-  closeModal();
-  renderProductsDetailList();
+  `).join('');
 }
 
 function showAddStockForm(preselectedId) {
-  const selectOpts = State.products.map(p => `<option value="${p.id}" ${p.id === preselectedId ? 'selected' : ''}>${p.icon} ${p.name} (Qoldiq: ${p.stock} dona)</option>`).join('');
+  const selectOpts = State.products.map(p => `<option value="${p.id}" ${p.id === preselectedId ? 'selected' : ''}>${p.name} (${p.stock} dona)</option>`).join('');
   const preProd = State.products.find(p => p.id === preselectedId) || State.products[0];
   const form = `
     <div class="form-group">
-      <label class="form-label">NFC Mahsulotni tanlang</label>
-      <select class="form-select" id="stock-prod-id" onchange="updateStockCostHint()">${selectOpts}</select>
+      <label class="form-label">Mahsulot</label>
+      <select class="form-select" id="stock-prod-id">${selectOpts}</select>
     </div>
     <div class="form-group">
-      <label class="form-label">Kirim qilinayotgan miqdor (dona)</label>
-      <input type="number" class="form-input" id="stock-qty-val" placeholder="Masalan: 50" min="1">
+      <label class="form-label">Miqdor (dona)</label>
+      <input type="number" class="form-input" id="stock-qty-val" placeholder="50" min="1">
     </div>
     <div class="form-group">
-      <label class="form-label">Xarid / Yetkazib kelish tannarxi (dona / UZS)</label>
+      <label class="form-label">Tannarxi (UZS / dona)</label>
       <input type="number" class="form-input" id="stock-cost-val" value="${preProd ? preProd.cost : 50000}">
-      <span class="form-hint">Ushbu tannarx keyingi foyda hisob-kitobida inobatga olinadi</span>
     </div>
-    <button class="btn-primary" onclick="submitStockKirim()">📥 Omborga Kirim Qilish</button>
+    <button class="btn-primary" onclick="submitStockKirim()">Kirim qilish</button>
   `;
-  openModal('Omborga Blank Kartalar Kirim Qilish', form);
-}
-
-function updateStockCostHint() {
-  const id = document.getElementById('stock-prod-id').value;
-  const p = State.products.find(x => x.id === id);
-  if (p) {
-    document.getElementById('stock-cost-val').value = p.cost;
-  }
+  openModal('Omborga kirim', form);
 }
 
 function submitStockKirim() {
@@ -1343,12 +991,12 @@ function submitStockKirim() {
   const cost = parseInt(document.getElementById('stock-cost-val').value);
 
   if (isNaN(qty) || qty <= 0) {
-    showToast('To\'g\'ri miqdor kiriting!');
+    showToast('Miqdorni kiriting');
     return;
   }
 
   if (State.addStock(id, qty, cost)) {
-    showToast('Ombor muvaffaqiyatli to\'ldirildi! 📥');
+    showToast('Ombor yangilandi');
     closeModal();
     renderProductsDetailList();
   }
@@ -1361,58 +1009,28 @@ function renderClientsDetailList() {
   const filtered = State.clients.filter(c => {
     return !clientSearchQuery || 
       c.name.toLowerCase().includes(clientSearchQuery.toLowerCase()) || 
-      c.address.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
       c.phone.includes(clientSearchQuery);
   });
 
   document.getElementById('clients-detail-subtitle').textContent = `Jami: ${State.clients.length} ta mijoz`;
 
-  const topC = filtered[0] || State.clients[0];
-  const cardWrap = document.getElementById('clients-detail-card-wrap');
-  if (topC && cardWrap) {
-    cardWrap.innerHTML = `
-      <div class="client-header-card" style="background:var(--surface); border:1px solid var(--gold-border); padding:14px; border-radius:var(--radius); margin-bottom:12px;">
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
-          <div class="oi-avatar" style="background:var(--gold-bg); color:var(--gold); font-size:18px;">${topC.name[0]}</div>
-          <div>
-            <div style="font-weight:700; color:var(--text); font-size:15px;">${topC.name}</div>
-            <div style="font-size:11px; color:var(--text2);">📞 ${topC.phone}</div>
-            <div style="font-size:11px; color:var(--muted);">📍 ${topC.address}</div>
-          </div>
-        </div>
-        <div class="fc-grid">
-          <div class="fc-sub-item">
-            <span class="fcs-label">Jami buyurtmalar:</span>
-            <span class="fcs-val">${topC.totalSpend.toLocaleString()} UZS</span>
-          </div>
-          <div class="fc-sub-item">
-            <span class="fcs-label">Qarz balansi:</span>
-            <span class="fcs-val" style="color:${topC.debt > 0 ? '#ff9f0a' : 'var(--text)'}">${topC.debt.toLocaleString()} UZS</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
   const listContainer = document.getElementById('clients-detail-list');
   if (listContainer) {
-    listContainer.innerHTML = filtered.map(c => {
-      const debtLabel = c.debt > 0 ? `<span class="status-pill status-debt">${c.debt.toLocaleString()} qarz</span>` : `<span class="status-pill status-done">Qarzsiz ✓</span>`;
-      return `
-        <div class="wide-card" style="margin-bottom:8px; cursor:pointer;" onclick="showClientHistory('${c.id}')">
-          <div class="order-item" style="border:none; padding:0;">
-            <div class="oi-avatar">${c.name[0]}</div>
+    listContainer.innerHTML = `
+      <div class="wide-card">
+        ${filtered.map(c => `
+          <div class="order-item" onclick="showClientHistory('${c.id}')" style="cursor:pointer;">
             <div class="oi-body">
               <div class="oi-name">${c.name}</div>
-              <div class="oi-detail">${c.address}</div>
+              <div class="oi-detail">${c.phone} • ${c.address}</div>
             </div>
             <div class="oi-right">
-              ${debtLabel}
+              ${c.debt > 0 ? `<span class="status-pill status-debt">${c.debt.toLocaleString()} UZS qarz</span>` : `<span style="font-size:11px;color:var(--text-dim);">Qarzsiz</span>`}
             </div>
           </div>
-        </div>
-      `;
-    }).join('');
+        `).join('')}
+      </div>
+    `;
   }
 }
 
@@ -1428,27 +1046,25 @@ function showClientHistory(clientId) {
   const c = State.clients.find(x => x.id === clientId);
   if (!c) return;
 
-  let listHistory = c.history.map(h => `
-    <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding:8px 0; font-size:12px;">
-      <div style="flex:1;">
-        <div style="font-weight:600;color:var(--text);">${h.desc}</div>
-        <div style="color:var(--muted); font-size:10px;">${h.date} • ${h.type}</div>
+  const listHistory = c.history.map(h => `
+    <div class="fin-row">
+      <div>
+        <div style="font-weight:600;color:var(--text);font-size:12px;">${h.desc}</div>
+        <div style="color:var(--muted);font-size:10px;">${h.date} • ${h.type}</div>
       </div>
-      <div style="text-align:right; font-weight:700; color:var(--text);">${h.amount.toLocaleString()} UZS</div>
+      <div class="fin-val">${h.amount.toLocaleString()} UZS</div>
     </div>
-  `).join('');
-
-  if (c.history.length === 0) listHistory = `<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px 0;">Tarix mavjud emas.</div>`;
+  `).join('') || `<div style="text-align:center;color:var(--muted);font-size:12px;padding:12px 0;">Tarix yo'q</div>`;
 
   const content = `
-    <div style="padding-top:4px;">
-      <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">📍 ${c.address}<br>📞 ${c.phone}</p>
-      <div style="background:var(--surface2); padding:10px 14px; border-radius:10px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:12px; color:var(--text2)">Joriy Nasiya Qarz:</span>
-        <span style="font-weight:700; color:${c.debt > 0 ? '#ff9f0a' : 'var(--text)'}; font-size:14px;">${c.debt.toLocaleString()} UZS</span>
+    <div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">📞 ${c.phone} • 📍 ${c.address}</div>
+      <div class="summary-banner" style="margin-bottom:12px;padding:10px 14px;">
+        <div class="sb-label">Qarz balansi</div>
+        <div class="sb-val" style="font-size:20px;">${c.debt.toLocaleString()} UZS</div>
       </div>
-      <p class="sec-label" style="margin-top:0; margin-bottom:8px;">Xarid va to'lovlar tarixi</p>
-      <div style="max-height:220px; overflow-y:auto; padding-right:4px;">
+      <p class="sec-label">Tarix</p>
+      <div class="wide-card" style="max-height:200px;overflow-y:auto;">
         ${listHistory}
       </div>
     </div>
@@ -1459,20 +1075,20 @@ function showClientHistory(clientId) {
 function showAddClientForm() {
   const form = `
     <div class="form-group">
-      <label class="form-label">Mijoz Ismi va Familiyasi</label>
-      <input type="text" class="form-input" id="c-new-name" placeholder="Masalan: Jamshid Usmonov">
+      <label class="form-label">Ism va Familiya</label>
+      <input type="text" class="form-input" id="c-new-name" placeholder="Masalan: Jamshid">
     </div>
     <div class="form-group">
-      <label class="form-label">Telefon raqami</label>
+      <label class="form-label">Telefon</label>
       <input type="text" class="form-input" id="c-new-phone" placeholder="+998 90 123 45 67">
     </div>
     <div class="form-group">
-      <label class="form-label">Kompaniya / Manzil</label>
-      <input type="text" class="form-input" id="c-new-addr" placeholder="Masalan: Tashkent City, IT Agency">
+      <label class="form-label">Manzil / Kompaniya</label>
+      <input type="text" class="form-input" id="c-new-addr" placeholder="Toshkent">
     </div>
-    <button class="btn-primary" onclick="submitAddClient()">👤 Mijozni Saqlash</button>
+    <button class="btn-primary" onclick="submitAddClient()">Saqlash</button>
   `;
-  openModal('Yangi Mijoz Qo\'shish', form);
+  openModal('Yangi mijoz', form);
 }
 
 function submitAddClient() {
@@ -1480,13 +1096,13 @@ function submitAddClient() {
   const phone = document.getElementById('c-new-phone').value;
   const addr = document.getElementById('c-new-addr').value;
 
-  if (!name || !phone || !addr) {
-    showToast('Iltimos barcha maydonlarni to\'ldiring!');
+  if (!name || !phone) {
+    showToast('Ism va telefonni kiriting');
     return;
   }
 
-  State.addClient(name, phone, addr);
-  showToast('Yangi mijoz saqlandi! 👤');
+  State.addClient(name, phone, addr || 'Toshkent');
+  showToast('Mijoz saqlandi');
   closeModal();
   renderClientsDetailList();
 }
@@ -1494,16 +1110,9 @@ function submitAddClient() {
 // ── Detail: Debts
 function renderDebtsDetailList() {
   let totalDebts = 0;
-  let qarzMijozCount = 0;
-  State.clients.forEach(c => {
-    if (c.debt > 0) {
-      totalDebts += c.debt;
-      qarzMijozCount++;
-    }
-  });
+  State.clients.forEach(c => { if (c.debt > 0) totalDebts += c.debt; });
 
-  document.getElementById('debts-detail-subtitle').textContent = `Tizimda ${qarzMijozCount} ta qarzli mijoz bor`;
-  document.getElementById('debts-stat-count').textContent = qarzMijozCount;
+  document.getElementById('debts-detail-subtitle').textContent = `Jami qarzlar`;
   document.getElementById('debts-stat-sum').textContent = totalDebts.toLocaleString() + ' UZS';
 
   const container = document.getElementById('debts-detail-list');
@@ -1511,19 +1120,18 @@ function renderDebtsDetailList() {
 
   const debtClients = State.clients.filter(c => c.debt > 0);
   if (debtClients.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--muted)">Ajoyib! Hozirda hech kimda qarz yo'q 🎉</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:12px;">Qarzdorlar yo'q</div>`;
     return;
   }
 
   container.innerHTML = debtClients.map(c => `
     <div class="order-item" onclick="showClientHistory('${c.id}')" style="cursor:pointer;">
-      <div class="oi-avatar" style="background:rgba(251,146,60,0.15); color:#fb923c;">⚠️</div>
       <div class="oi-body">
         <div class="oi-name">${c.name}</div>
-        <div class="oi-detail">${c.address} • ${c.phone}</div>
+        <div class="oi-detail">${c.phone}</div>
       </div>
       <div class="oi-right">
-        <div class="oi-sum" style="color:#fb923c;">${c.debt.toLocaleString()} UZS</div>
+        <div class="oi-sum">${c.debt.toLocaleString()} UZS</div>
       </div>
     </div>
   `).join('');
@@ -1532,40 +1140,23 @@ function renderDebtsDetailList() {
 function showCollectPaymentForm() {
   const debtClients = State.clients.filter(c => c.debt > 0);
   if (debtClients.length === 0) {
-    showToast('Hozirda qarzi bor mijozlar mavjud emas!');
+    showToast('Qarzdorlar yo\'q');
     return;
   }
 
-  const options = debtClients.map(c => `<option value="${c.id}">${c.name} (Qarz: ${c.debt.toLocaleString()} UZS)</option>`).join('');
+  const options = debtClients.map(c => `<option value="${c.id}">${c.name} (${c.debt.toLocaleString()} UZS)</option>`).join('');
   const form = `
     <div class="form-group">
-      <label class="form-label">Mijozni tanlang</label>
+      <label class="form-label">Mijoz</label>
       <select class="form-select" id="debt-pay-client">${options}</select>
     </div>
     <div class="form-group">
-      <label class="form-label">To'lov miqdori (UZS)</label>
-      <input type="number" class="form-input" id="debt-pay-amount" placeholder="Miqdorni kiriting" min="1">
+      <label class="form-label">To'lov summasi (UZS)</label>
+      <input type="number" class="form-input" id="debt-pay-amount" placeholder="Summa" min="1">
     </div>
-    <div style="display:flex; gap:8px; margin-bottom:18px; flex-wrap: wrap;">
-      <button class="btn-secondary" style="margin:0; font-size:11px; padding:8px; flex:1;" onclick="presetDebt(50000)">50,000</button>
-      <button class="btn-secondary" style="margin:0; font-size:11px; padding:8px; flex:1;" onclick="presetDebt(100000)">100,000</button>
-      <button class="btn-secondary" style="margin:0; font-size:11px; padding:8px; flex:1;" onclick="presetDebt(500000)">500,000</button>
-      <button class="btn-secondary" style="margin:0; font-size:11px; padding:8px; flex:1; background:var(--gold); color:#000; font-weight:700;" onclick="presetDebtFull()">To'liq yopish</button>
-    </div>
-    <button class="btn-primary" onclick="submitDebtPayment()">💳 To'lovni Tasdiqlash</button>
+    <button class="btn-primary" onclick="submitDebtPayment()">To'lovni tasdiqlash</button>
   `;
-  openModal('Qarz to\'lovini qabul qilish', form);
-}
-
-function presetDebt(val) {
-  const input = document.getElementById('debt-pay-amount');
-  if (input) input.value = val;
-}
-
-function presetDebtFull() {
-  const clientId = document.getElementById('debt-pay-client').value;
-  const c = State.clients.find(x => x.id === clientId);
-  if (c) presetDebt(c.debt);
+  openModal('Qarz to\'lovi', form);
 }
 
 function submitDebtPayment() {
@@ -1573,50 +1164,46 @@ function submitDebtPayment() {
   const amount = parseInt(document.getElementById('debt-pay-amount').value);
 
   if (isNaN(amount) || amount <= 0) {
-    showToast('To\'g\'ri to\'lov miqdori kiriting!');
+    showToast('Summani kiriting');
     return;
   }
 
   const paid = State.payDebt(clientId, amount);
   if (paid > 0) {
-    showToast(`To'lov qabul qilindi: ${paid.toLocaleString()} UZS 💳`);
+    showToast(`To'lov qabul qilindi: ${paid.toLocaleString()} UZS`);
     closeModal();
     renderDebtsDetailList();
   }
 }
 
-// ── Detail: Analytics & Financials
+// ── Detail: Analytics
 function renderAnalyticsDetail() {
   const fin = State.getFinancials();
 
-  document.getElementById('analytics-detail-subtitle').textContent = `Sof Rentabellik: ${fin.marginPercent}%`;
-  document.getElementById('analytics-stat-margin').textContent = `Marja: ${fin.marginPercent}%`;
+  document.getElementById('analytics-detail-subtitle').textContent = `Rentabellik: ${fin.marginPercent}%`;
+  document.getElementById('analytics-stat-margin').textContent = fin.marginPercent + '%';
   document.getElementById('analytics-stat-foyda').textContent = fin.netProfit.toLocaleString() + ' UZS';
   document.getElementById('analytics-stat-kirim').textContent = fin.totalRevenue.toLocaleString() + ' UZS';
   document.getElementById('analytics-stat-tannarx').textContent = fin.totalTannarx.toLocaleString() + ' UZS';
   document.getElementById('analytics-stat-xarajat').textContent = fin.totalDirectExpenses.toLocaleString() + ' UZS';
   document.getElementById('analytics-stat-all-costs').textContent = fin.totalAllCosts.toLocaleString() + ' UZS';
 
-  // Render Top NFC Products
   const container = document.getElementById('analytics-top-products');
   if (container) {
     const sorted = [...State.products].sort((a,b) => (b.sold || 0) - (a.sold || 0));
-    container.innerHTML = sorted.map((p, idx) => {
-      const places = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-      return `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px;">
-          <span style="font-weight:600; color:var(--text);">${places[idx] || '•'} ${p.name} (${p.size})</span>
-          <span style="font-weight:700; color:var(--gold);">${p.sold || 0} dona sotildi</span>
-        </div>
-      `;
-    }).join('');
+    container.innerHTML = sorted.map(p => `
+      <div class="fin-row">
+        <span class="fin-label">${p.name}</span>
+        <span class="fin-val">${p.sold || 0} dona</span>
+      </div>
+    `).join('');
   }
 
-  setTimeout(() => drawChart('week', 'chart-bars-detail', 'chart-labels-detail'), 50);
+  setTimeout(() => drawChart('week', 'chart-bars-detail', 'chart-labels-detail'), 40);
 }
 
 // ══════════════════════════════════════════
-// CHART GRAPHIC PLOTTER
+// CHART PLOTTER
 // ══════════════════════════════════════════
 const staticChartData = {
   week: {
@@ -1646,12 +1233,7 @@ function drawChart(type, barsContainerId, labelsContainerId) {
   barsContainer.innerHTML = scaledVals.map((v, i) => {
     const isToday = i === data.vals.length - 1;
     const heightPercent = Math.max(8, (v / max * 100));
-    return `
-      <div class="bar ${isToday ? 'today' : ''}" 
-           style="height:${heightPercent}%;"
-           title="${Math.round(v * 1000).toLocaleString()} UZS">
-      </div>
-    `;
+    return `<div class="bar ${isToday ? 'today' : ''}" style="height:${heightPercent}%;"></div>`;
   }).join('');
 
   if (labelsContainer) {
@@ -1670,7 +1252,7 @@ function switchChart(type, btn) {
 }
 
 // ══════════════════════════════════════════
-// GLOBAL MODAL SHEET FUNCTIONS
+// MODALS
 // ══════════════════════════════════════════
 function openModal(title, htmlContent) {
   document.getElementById('modal-title').textContent = title;
@@ -1683,17 +1265,15 @@ function openModal(title, htmlContent) {
 function closeModal() {
   const backdrop = document.getElementById('global-modal');
   backdrop.classList.remove('active');
-  setTimeout(() => { backdrop.style.display = 'none'; }, 200);
+  setTimeout(() => { backdrop.style.display = 'none'; }, 150);
 }
 
 function handleBackdropClick(e) {
-  if (e.target.id === 'global-modal') {
-    closeModal();
-  }
+  if (e.target.id === 'global-modal') closeModal();
 }
 
 // ══════════════════════════════════════════
-// NEW ORDER FORM WITH DYNAMIC PRICING & PERSONALIZATION
+// NEW ORDER FORM (DYNAMIC PRICING)
 // ══════════════════════════════════════════
 const fabBtn = document.getElementById('fab-btn');
 if (fabBtn) {
@@ -1706,103 +1286,55 @@ if (fabBtn) {
 }
 
 function showAddOrderForm() {
-  const clientOpts = State.clients.map(c => `<option value="${c.id}">${c.name} (${c.phone})</option>`).join('');
-  const prodOpts = State.products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.icon} ${p.name} — ${p.size}</option>`).join('');
+  const clientOpts = State.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  const prodOpts = State.products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name}</option>`).join('');
   const defaultProd = State.products[0];
 
   const form = `
     <div class="form-group">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <label class="form-label" style="margin:0;">Mijozni tanlang</label>
-        <button onclick="closeModal(); showAddClientForm();" class="icon-text-btn" style="color:var(--gold);">+ Yangi mijoz</button>
-      </div>
+      <label class="form-label">Mijoz</label>
       <select class="form-select" id="order-client-id">${clientOpts}</select>
     </div>
 
     <div class="form-group">
-      <label class="form-label">NFC Mahsulot Form-faktori</label>
+      <label class="form-label">NFC Karta Turi</label>
       <select class="form-select" id="order-prod-id" onchange="onOrderProductChanged()">${prodOpts}</select>
     </div>
 
-    <!-- Dynamic Pricing Controls -->
     <div class="form-grid-2">
       <div class="form-group">
-        <label class="form-label">Kelishilgan Narxi (UZS / dona)</label>
+        <label class="form-label">Dona narxi (UZS)</label>
         <input type="number" class="form-input" id="order-unit-price" value="${defaultProd.price}" oninput="calculateDynamicOrderTotal()">
-        <span class="form-hint">Erkin kelishilgan narx</span>
       </div>
       <div class="form-group">
-        <label class="form-label">Miqdori (dona)</label>
+        <label class="form-label">Soni</label>
         <input type="number" class="form-input" id="order-qty" value="1" min="1" oninput="calculateDynamicOrderTotal()">
       </div>
     </div>
 
     <div class="form-group">
-      <label class="form-label">Dizayn / Maxsus Bosma xizmat haqi (UZS)</label>
-      <input type="number" class="form-input" id="order-service-fee" value="0" placeholder="0" oninput="calculateDynamicOrderTotal()">
-    </div>
-
-    <!-- Personalization Specs for Smart NFC Card -->
-    <p class="sec-label" style="margin-top:14px; margin-bottom:8px;">Karta Shaxsiylashtirish (Ixtiyoriy)</p>
-    <div class="form-grid-2">
-      <div class="form-group">
-        <label class="form-label">Kartadagi Ism</label>
-        <input type="text" class="form-input" id="order-spec-name" placeholder="Masalan: Aziz Azizov">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Mutaxassislik / Kasb</label>
-        <input type="text" class="form-input" id="order-spec-role" placeholder="Masalan: Founder & CEO">
-      </div>
-    </div>
-    <div class="form-grid-2">
-      <div class="form-group">
-        <label class="form-label">Dizayn Naqshi #</label>
-        <input type="text" class="form-input" id="order-spec-design" placeholder="#1..#43 (Masalan: #12)">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Instagram Username</label>
-        <input type="text" class="form-input" id="order-spec-insta" placeholder="@username">
-      </div>
+      <label class="form-label">Qo'shimcha xizmat / Dizayn (UZS)</label>
+      <input type="number" class="form-input" id="order-service-fee" value="0" oninput="calculateDynamicOrderTotal()">
     </div>
 
     <div class="form-grid-2">
       <div class="form-group">
-        <label class="form-label">To'lov usuli</label>
+        <label class="form-label">To'lov</label>
         <select class="form-select" id="order-payment">
-          <option value="Karta">Karta (Uzcard / Humo)</option>
-          <option value="Naqd">Naqd to'lov</option>
-          <option value="Nasiya">Nasiya (Qarzga yozish)</option>
+          <option value="Karta">Karta</option>
+          <option value="Naqd">Naqd</option>
+          <option value="Nasiya">Nasiya (Qarz)</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Yetkazish muddati</label>
-        <select class="form-select" id="order-date">
-          <option value="Bugun">Bugun</option>
-          <option value="Ertaga">Ertaga</option>
-          <option value="2-3 kun">2-3 kun ichida</option>
-        </select>
+        <label class="form-label">Jami summa</label>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--gold);padding-top:8px;" id="order-total-preview">0 UZS</div>
       </div>
     </div>
 
-    <!-- Dynamic Total Live Calculation Box -->
-    <div class="dynamic-price-box">
-      <div class="dp-row">
-        <span>Kartalar summasi:</span>
-        <span id="dp-cards-sum">0 UZS</span>
-      </div>
-      <div class="dp-row">
-        <span>Qo'shimcha xizmat:</span>
-        <span id="dp-fee-sum">0 UZS</span>
-      </div>
-      <div class="dp-row" style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
-        <span style="font-weight:700; color:var(--text);">Jami Buyurtma Summasi:</span>
-        <span class="dp-total-val" id="order-total-preview">0 UZS</span>
-      </div>
-    </div>
-
-    <button class="btn-primary" onclick="submitNewOrder()">📋 Buyurtmani Rasmiylashtirish</button>
+    <button class="btn-primary" onclick="submitNewOrder()">Buyurtmani saqlash</button>
   `;
-  openModal('Yangi NFC Smart Buyurtma', form);
+  openModal('Yangi buyurtma', form);
   calculateDynamicOrderTotal();
 }
 
@@ -1820,15 +1352,8 @@ function calculateDynamicOrderTotal() {
   const qty = parseInt(document.getElementById('order-qty')?.value) || 1;
   const fee = parseInt(document.getElementById('order-service-fee')?.value) || 0;
 
-  const cardsSum = unitPrice * qty;
-  const total = cardsSum + fee;
-
-  const cardsEl = document.getElementById('dp-cards-sum');
-  const feeEl = document.getElementById('dp-fee-sum');
+  const total = (unitPrice * qty) + fee;
   const preview = document.getElementById('order-total-preview');
-
-  if (cardsEl) cardsEl.textContent = cardsSum.toLocaleString() + ' UZS';
-  if (feeEl) feeEl.textContent = fee.toLocaleString() + ' UZS';
   if (preview) preview.textContent = total.toLocaleString() + ' UZS';
 }
 
@@ -1839,23 +1364,17 @@ function submitNewOrder() {
   const qty = parseInt(document.getElementById('order-qty').value);
   const fee = parseInt(document.getElementById('order-service-fee').value) || 0;
   const payment = document.getElementById('order-payment').value;
-  const date = document.getElementById('order-date').value;
-
-  const specName = document.getElementById('order-spec-name').value;
-  const specRole = document.getElementById('order-spec-role').value;
-  const specDesign = document.getElementById('order-spec-design').value;
-  const specInsta = document.getElementById('order-spec-insta').value;
 
   const client = State.clients.find(c => c.id === clientId);
   const product = State.products.find(p => p.id === prodId);
 
-  if (!client || !product || isNaN(qty) || qty <= 0 || isNaN(unitPrice) || unitPrice < 0) {
-    showToast('Iltimos barcha kerakli maydonlarni to\'g\'ri to\'ldiring!');
+  if (!client || !product || isNaN(qty) || qty <= 0 || isNaN(unitPrice)) {
+    showToast('Ma\'lumotlarni to\'g\'ri kiriting');
     return;
   }
 
   if (product.stock < qty) {
-    showToast(`Omborda yetarli blank karta yo'q! Qoldiq: ${product.stock} dona`);
+    showToast(`Omborda faqat ${product.stock} ta qolgan`);
     return;
   }
 
@@ -1876,82 +1395,51 @@ function submitNewOrder() {
         qty: qty,
         unitPrice: unitPrice,
         designFee: fee,
-        cost: product.cost,
-        specs: {
-          name: specName || client.name,
-          role: specRole || '',
-          designNo: specDesign || '#01',
-          insta: specInsta || ''
-        }
+        cost: product.cost
       }
     ],
     total: total,
-    date: date,
+    date: 'Bugun',
     status: 'Tayyorlanmoqda',
     payment: payment
   };
 
   State.addOrder(newOrder);
-  showToast(`Buyurtma #${orderId} muvaffaqiyatli saqlandi! ⚡`);
+  showToast(`Buyurtma #${orderId} saqlandi`);
   closeModal();
-  showOrderActions(orderId);
 }
 
 // ══════════════════════════════════════════
-// ORDER ACTIONS & TELEGRAM DISPATCH
+// ORDER ACTIONS & TELEGRAM
 // ══════════════════════════════════════════
 function showOrderActions(orderId) {
   const ord = State.orders.find(o => o.id === orderId);
   if (!ord) return;
 
   const item = ord.items[0] || {};
-  const specs = item.specs || {};
 
-  let content = `
-    <div style="padding:4px 0;">
-      <div style="background:var(--surface2); padding:12px; border-radius:10px; margin-bottom:14px; border:1px solid var(--border);">
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-          <span style="color:var(--gold); font-weight:700;">#${ord.id}</span>
-          <span style="color:var(--text); font-weight:700;">${ord.total.toLocaleString()} UZS</span>
-        </div>
-        <div style="font-size:12px; color:var(--text2);">
-          👤 Mijoz: <b>${ord.clientName}</b> (${ord.clientPhone || ''})<br>
-          📍 Manzil: ${ord.clientAddress || 'Toshkent'}<br>
-          💳 Karta: <b>${item.qty || 1}x ${item.name || 'NFC Card'}</b> (Dona: ${(item.unitPrice||0).toLocaleString()} UZS)<br>
-          ${item.designFee ? `🎨 Dizayn xizmati: ${item.designFee.toLocaleString()} UZS<br>` : ''}
-          💳 To'lov: <b>${ord.payment}</b> • Holat: <b>${ord.status}</b>
-        </div>
-        ${specs.name ? `
-          <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--gold);">
-            🪪 <b>Karta parametrlari:</b> ${specs.name} | ${specs.role || ''} | Naqsh: ${specs.designNo || ''} | ${specs.insta || ''}
-          </div>
-        ` : ''}
+  const content = `
+    <div>
+      <div style="font-size:13px;color:var(--text);margin-bottom:12px;">
+        <b>#${ord.id}</b> • ${ord.clientName} (${ord.clientPhone || ''})<br>
+        Karta: <b>${item.qty || 1}x ${item.name || 'NFC'}</b><br>
+        Summa: <b>${ord.total.toLocaleString()} UZS</b> (${ord.payment})<br>
+        Holat: <b>${ord.status}</b>
       </div>
 
-      <button class="btn-primary btn-telegram" style="margin-bottom:10px;" onclick="forwardOrderToTelegram('${ord.id}')">
-        ✈️ Telegramga Jo'natish (@nfcprime_admin)
+      <button class="btn-primary" style="margin-bottom:8px;" onclick="forwardOrderToTelegram('${ord.id}')">
+        Telegramga jo'natish
       </button>
-  `;
 
-  if (ord.status !== 'Yetkazildi' && ord.status !== 'Qaytarildi') {
-    content += `
-      <div class="quick-action-row" style="margin-bottom:10px;">
-        <button class="btn-secondary" style="margin:0; background:rgba(52,211,153,0.15); color:#34d399; border-color:rgba(52,211,153,0.3);" onclick="updateOrderStatus('${ord.id}', 'Yetkazildi')">✓ Yetkazildi</button>
-        <button class="btn-secondary" style="margin:0; background:rgba(56,189,248,0.15); color:#38bdf8; border-color:rgba(56,189,248,0.3);" onclick="updateOrderStatus('${ord.id}', 'Tayyorlanmoqda')">⚡ Tayyorlanmoqda</button>
-      </div>
-    `;
-  }
+      ${ord.status !== 'Yetkazildi' ? `
+        <button class="btn-secondary" onclick="updateOrderStatus('${ord.id}', 'Yetkazildi')">✓ Yetkazildi</button>
+      ` : ''}
 
-  if (ord.status !== 'Qaytarildi') {
-    content += `
-      <button class="btn-secondary" style="color:#ff453a; border-color:rgba(255,69,58,0.2);" onclick="cancelAndReturnOrder('${ord.id}')">↩️ Buyurtmani bekor qilish & Omborni qaytarish</button>
-    `;
-  } else {
-    content += `<p style="text-align:center;color:var(--muted);font-size:12px;margin:8px 0;">Ushbu buyurtma bekor qilingan.</p>`;
-  }
+      ${ord.status !== 'Qaytarildi' ? `
+        <button class="btn-secondary" style="color:#ff453a;" onclick="cancelAndReturnOrder('${ord.id}')">Bekor qilish (Omborga qaytarish)</button>
+      ` : ''}
 
-  content += `
-      <button class="btn-secondary" style="margin-top:8px; color:var(--muted);" onclick="deleteOrderPermanently('${ord.id}')">🗑️ Butunlay o'chirish</button>
+      <button class="btn-secondary" style="color:var(--muted);" onclick="deleteOrderPermanently('${ord.id}')">O'chirish</button>
     </div>
   `;
   openModal(`Buyurtma #${ord.id}`, content);
@@ -1962,38 +1450,23 @@ function forwardOrderToTelegram(orderId) {
   if (!ord) return;
 
   const item = ord.items[0] || {};
-  const specs = item.specs || {};
 
-  const message = `⚡ YANGI NFC PRIME BUYURTMA: #${ord.id}\n` +
-    `━━━━━━━━━━━━━━━━━━━\n` +
-    `💳 Model: ${item.name || 'NFC Smart Card'}\n` +
-    `📦 Miqdor: ${item.qty || 1} dona\n` +
-    `💰 Kelishilgan narx: ${(item.unitPrice||0).toLocaleString()} UZS / dona\n` +
-    (item.designFee ? `🎨 Dizayn xizmati: ${item.designFee.toLocaleString()} UZS\n` : '') +
-    `💵 Jami summa: ${ord.total.toLocaleString()} UZS\n` +
-    `💳 To'lov: ${ord.payment}\n\n` +
-    `👤 Mijoz: ${ord.clientName}\n` +
-    `📞 Tel: ${ord.clientPhone || '-'}\n` +
-    `📍 Manzil: ${ord.clientAddress || '-'}\n\n` +
-    `🪪 KARTAGA YOZILADIGAN MA'LUMOTLAR:\n` +
-    `• Ism: ${specs.name || ord.clientName}\n` +
-    `• Lavozim: ${specs.role || '-'}\n` +
-    `• Dizayn: ${specs.designNo || '#01'}\n` +
-    `• Instagram: ${specs.insta || '-'}\n` +
-    `━━━━━━━━━━━━━━━━━━━\n` +
-    `🚀 NFC PRIME (nfcprime.uz)`;
+  const message = `BUYURTMA: #${ord.id}\n` +
+    `Mijoz: ${ord.clientName} (${ord.clientPhone || '-'})\n` +
+    `Karta: ${item.qty || 1}x ${item.name || 'NFC'}\n` +
+    `Summa: ${ord.total.toLocaleString()} UZS\n` +
+    `To'lov: ${ord.payment}\n` +
+    `Holat: ${ord.status}`;
 
-  // Copy to clipboard
   if (navigator.clipboard) {
     navigator.clipboard.writeText(message);
-    showToast('Buyurtma nusxalandi va Telegram ochilmoqda! ✈️');
+    showToast('Nusxalandi va Telegram ochilmoqda');
   }
 
-  // Open telegram
   const encoded = encodeURIComponent(message);
   setTimeout(() => {
     window.open(`https://t.me/share/url?url=${encoded}`, '_blank');
-  }, 400);
+  }, 300);
 }
 
 function updateOrderStatus(orderId, newStatus) {
@@ -2001,7 +1474,7 @@ function updateOrderStatus(orderId, newStatus) {
   if (ord) {
     ord.status = newStatus;
     State.save();
-    showToast(`Buyurtma holati "${newStatus}" ga yangilandi!`);
+    showToast('Holat yangilandi');
     closeModal();
     if (document.getElementById('detail-orders')?.classList.contains('active')) renderOrdersDetailList();
     renderTab(currentTab);
@@ -2009,9 +1482,9 @@ function updateOrderStatus(orderId, newStatus) {
 }
 
 function cancelAndReturnOrder(orderId) {
-  if (confirm("Buyurtmani bekor qilib, NFC kartalarni omborga qaytarmoqchimisiz?")) {
+  if (confirm("Buyurtmani bekor qilmoqchimisiz?")) {
     if (State.returnOrder(orderId)) {
-      showToast("Buyurtma bekor qilindi, kartalar omborga qaytarildi ↩️");
+      showToast("Buyurtma bekor qilindi");
       closeModal();
       if (document.getElementById('detail-orders')?.classList.contains('active')) renderOrdersDetailList();
     }
@@ -2019,10 +1492,10 @@ function cancelAndReturnOrder(orderId) {
 }
 
 function deleteOrderPermanently(orderId) {
-  if (confirm("Rostdan ham ushbu buyurtmani butunlay o'chirmoqchimisiz?")) {
+  if (confirm("Butunlay o'chirmoqchimisiz?")) {
     State.orders = State.orders.filter(o => o.id !== orderId);
     State.save();
-    showToast("Buyurtma o'chirildi!");
+    showToast("O'chirildi");
     closeModal();
     if (document.getElementById('detail-orders')?.classList.contains('active')) renderOrdersDetailList();
     renderTab(currentTab);
@@ -2030,33 +1503,21 @@ function deleteOrderPermanently(orderId) {
 }
 
 // ══════════════════════════════════════════
-// BATCH DELETE MODALS
+// DELETE MODALS
 // ══════════════════════════════════════════
 function openDeleteModal(type) {
   let listHtml = '';
   let title = '';
   let deleteFn = '';
   
-  if (type === 'orders') {
-    title = "Buyurtmalarni o'chirish";
-    listHtml = State.orders.map(o => `
-      <label style="display:flex; align-items:center; padding:12px; border-bottom:1px solid var(--border); cursor:pointer;">
-        <input type="checkbox" class="delete-checkbox" value="${o.id}" style="margin-right:12px; width:20px; height:20px;">
-        <div style="flex:1">
-          <div style="font-weight:600">#${o.id} • ${o.clientName}</div>
-          <div style="font-size:12px; color:var(--text2)">${o.date} • ${o.total.toLocaleString()} UZS</div>
-        </div>
-      </label>
-    `).join('');
-    deleteFn = 'deleteSelectedOrders()';
-  } else if (type === 'expenses') {
-    title = "Xarajatlarni o'chirish";
+  if (type === 'expenses') {
+    title = "Chiqimlarni o'chirish";
     listHtml = State.expenses.map(e => `
-      <label style="display:flex; align-items:center; padding:12px; border-bottom:1px solid var(--border); cursor:pointer;">
-        <input type="checkbox" class="delete-checkbox" value="${e.id}" style="margin-right:12px; width:20px; height:20px;">
+      <label style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); cursor:pointer;">
+        <input type="checkbox" class="delete-checkbox" value="${e.id}" style="margin-right:10px;">
         <div style="flex:1">
-          <div style="font-weight:600">${e.category}</div>
-          <div style="font-size:12px; color:var(--text2)">${e.desc} • ${e.amount.toLocaleString()} UZS</div>
+          <div style="font-weight:600;font-size:12.5px;">${e.category}</div>
+          <div style="font-size:11px; color:var(--text-dim)">${e.amount.toLocaleString()} UZS</div>
         </div>
       </label>
     `).join('');
@@ -2064,11 +1525,11 @@ function openDeleteModal(type) {
   } else if (type === 'clients') {
     title = "Mijozlarni o'chirish";
     listHtml = State.clients.map(c => `
-      <label style="display:flex; align-items:center; padding:12px; border-bottom:1px solid var(--border); cursor:pointer;">
-        <input type="checkbox" class="delete-checkbox" value="${c.id}" style="margin-right:12px; width:20px; height:20px;">
+      <label style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); cursor:pointer;">
+        <input type="checkbox" class="delete-checkbox" value="${c.id}" style="margin-right:10px;">
         <div style="flex:1">
-          <div style="font-weight:600">${c.name}</div>
-          <div style="font-size:12px; color:var(--text2)">${c.phone} • ${c.address}</div>
+          <div style="font-weight:600;font-size:12.5px;">${c.name}</div>
+          <div style="font-size:11px; color:var(--text-dim)">${c.phone}</div>
         </div>
       </label>
     `).join('');
@@ -2076,39 +1537,26 @@ function openDeleteModal(type) {
   }
 
   if (!listHtml) {
-    openModal(title, "<div style=\"padding:20px; text-align:center; color:var(--muted)\">O'chirish uchun ma'lumot yo'q.</div>");
+    openModal(title, "<div style=\"padding:16px; text-align:center; color:var(--text-dim); font-size:12px;\">Ma'lumot yo'q</div>");
     return;
   }
 
   const content = `
-    <div style="max-height:50vh; overflow-y:auto; margin-bottom:16px; border:1px solid var(--border); border-radius:10px;">
+    <div style="max-height:45vh; overflow-y:auto; margin-bottom:12px;">
       ${listHtml}
     </div>
-    <button class="btn-primary" style="background:#ff453a; color:#fff; border:none;" onclick="${deleteFn}">🗑️ Tanlanganlarni o'chirish</button>
+    <button class="btn-primary" style="background:#ff453a; color:#fff;" onclick="${deleteFn}">Tanlanganlarni o'chirish</button>
   `;
   openModal(title, content);
 }
 
-function deleteSelectedOrders() {
-  const selected = Array.from(document.querySelectorAll('.delete-checkbox:checked')).map(cb => cb.value);
-  if (selected.length === 0) return showToast('Hech narsa tanlanmadi!');
-  if (confirm(`${selected.length} ta buyurtmani o'chirmoqchimisiz?`)) {
-    State.orders = State.orders.filter(o => !selected.includes(o.id));
-    State.save();
-    showToast(`${selected.length} ta buyurtma o'chirildi!`);
-    closeModal();
-    if (document.getElementById('detail-orders')?.classList.contains('active')) renderOrdersDetailList();
-    renderTab(currentTab);
-  }
-}
-
 function deleteSelectedExpenses() {
   const selected = Array.from(document.querySelectorAll('.delete-checkbox:checked')).map(cb => cb.value);
-  if (selected.length === 0) return showToast('Hech narsa tanlanmadi!');
-  if (confirm(`${selected.length} ta xarajatni o'chirmoqchimisiz?`)) {
+  if (selected.length === 0) return showToast('Tanlanmadi');
+  if (confirm(`${selected.length} ta xarajat o'chirilsinmi?`)) {
     State.expenses = State.expenses.filter(e => !selected.includes(e.id));
     State.save();
-    showToast(`${selected.length} ta xarajat o'chirildi!`);
+    showToast("O'chirildi");
     closeModal();
     if (document.getElementById('detail-expenses')?.classList.contains('active')) renderExpensesDetailList();
     renderTab(currentTab);
@@ -2117,11 +1565,11 @@ function deleteSelectedExpenses() {
 
 function deleteSelectedClients() {
   const selected = Array.from(document.querySelectorAll('.delete-checkbox:checked')).map(cb => cb.value);
-  if (selected.length === 0) return showToast('Hech narsa tanlanmadi!');
-  if (confirm(`${selected.length} ta mijozni o'chirmoqchimisiz?`)) {
+  if (selected.length === 0) return showToast('Tanlanmadi');
+  if (confirm(`${selected.length} ta mijoz o'chirilsinmi?`)) {
     State.clients = State.clients.filter(c => !selected.includes(c.id));
     State.save();
-    showToast(`${selected.length} ta mijoz o'chirildi!`);
+    showToast("O'chirildi");
     closeModal();
     if (document.getElementById('detail-clients')?.classList.contains('active')) renderClientsDetailList();
     renderTab(currentTab);
