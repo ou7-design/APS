@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aps-cache-v1';
+const CACHE_NAME = 'np-prime-cache-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,14 +6,14 @@ const ASSETS_TO_CACHE = [
   './app.js',
   './manifest.json',
   './icon.svg',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@600;700;800&display=swap'
 ];
 
 // Install Event
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Service Worker] Caching App Shell');
+      console.log('[Service Worker] Caching NP Prime App Shell');
       return cache.addAll(ASSETS_TO_CACHE);
     }).then(() => self.skipWaiting())
   );

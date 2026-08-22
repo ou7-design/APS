@@ -1,11 +1,11 @@
 {
-  "name": "APS — Savdo Boshqaruvi",
-  "short_name": "APS",
-  "description": "Premium Savdo Boshqaruv Tizimi",
+  "name": "NP — NFC PRIME Boshqaruvi",
+  "short_name": "NP PRIME",
+  "description": "NFC PRIME Smart Contactless Cards & Identity Business Manager",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#050505",
-  "theme_color": "#050505",
+  "background_color": "#0a0a0c",
+  "theme_color": "#0a0a0c",
   "orientation": "any",
   "icons": [
     {

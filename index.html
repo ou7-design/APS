@@ -3,13 +3,18 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <meta name="theme-color" content="#050505"/>
+  <meta name="theme-color" content="#0a0a0c"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <link rel="apple-touch-icon" href="icon.svg"/>
-  <title>APS — Savdo Boshqaruvi</title>
+  <title>NP — NFC PRIME Boshqaruvi</title>
   
-  <!-- PWA Manifest & Global Styles -->
+  <!-- Google Fonts: Syne, Inter, Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- PWA Manifest & Styles -->
   <link rel="manifest" href="manifest.json"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
@@ -21,12 +26,24 @@
   </div>
 
   <!-- ════════════════════════════════════════
-       1. PIN SCREEN
+       1. PIN SCREEN (Security Gateway: 7777)
   ════════════════════════════════════════ -->
   <div id="pin-screen" class="screen active">
+    <div class="pin-brand-badge">
+      <span class="nfc-icon-chip">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9a6 6 0 0 1 12 0"/>
+          <path d="M8.5 12a3.5 3.5 0 0 1 7 0"/>
+          <circle cx="12" cy="15" r="1" fill="currentColor"/>
+        </svg>
+      </span>
+      <span>SMART NFC PLATFORM</span>
+    </div>
+
     <div class="pin-logo-wrap">
-      <div class="pin-logo">A<span class="p-accent">P</span>S</div>
-      <div class="pin-tagline">Savdo Boshqaruv Tizimi</div>
+      <div class="pin-logo">N<span class="p-accent">P</span></div>
+      <div class="pin-sublogo">NFC PRIME</div>
+      <div class="pin-tagline">Smart Boshqaruv & Moliya Tizimi</div>
     </div>
 
     <div class="pin-dots" id="pin-dots">
@@ -57,7 +74,10 @@
   ════════════════════════════════════════ -->
   <div id="app-screen" class="screen">
     <div class="app-header">
-      <div class="header-logo">A<span class="p-accent">P</span>S</div>
+      <div class="header-left">
+        <div class="header-logo">N<span class="p-accent">P</span></div>
+        <span class="header-badge">PRIME</span>
+      </div>
       <div class="header-right">
         <div class="header-time" id="hdr-time">--:--</div>
         <div class="sync-indicator">
@@ -81,39 +101,56 @@
         <span class="ni-label">Buyurtma</span>
         <span class="nav-badge" id="orders-badge">0</span>
       </button>
+      <button class="nav-item" data-tab="expenses">
+        <span class="ni-icon">💸</span>
+        <span class="ni-label">Xarajat</span>
+      </button>
       <button class="nav-item" data-tab="products">
-        <span class="ni-icon">📦</span>
-        <span class="ni-label">Tovar</span>
+        <span class="ni-icon">💳</span>
+        <span class="ni-label">Ombor</span>
       </button>
       <button class="nav-item" data-tab="clients">
-        <span class="ni-icon">👤</span>
+        <span class="ni-icon">👥</span>
         <span class="ni-label">Mijoz</span>
       </button>
       <button class="nav-item" data-tab="analytics">
         <span class="ni-icon">📈</span>
-        <span class="ni-label">Analitik</span>
+        <span class="ni-label">Analitika</span>
       </button>
     </nav>
   </div>
 
   <!-- ════════════════════════════════════════
-       3. DETAIL: BUYURTMALAR
+       3. DETAIL: BUYURTMALAR (ORDERS)
   ════════════════════════════════════════ -->
   <div id="detail-orders" class="detail-screen">
     <div class="detail-header">
       <button class="back-btn" onclick="closeDetail()">←</button>
-      <div>
-        <div class="detail-title" style="color:var(--text)">📋 Buyurtmalar</div>
+      <div style="flex:1;">
+        <div class="detail-title">📋 NFC Buyurtmalar</div>
         <div class="detail-subtitle" id="orders-detail-subtitle">Yuklanmoqda...</div>
       </div>
+      <button class="header-action-btn" onclick="showAddOrderForm()">+ Yangi</button>
     </div>
     <div class="detail-body">
-      <p class="sec-label" style="margin-top:24px">Tizimdagi buyurtmalar (Batafsil)</p>
+      <!-- Search & Filter -->
+      <div class="search-box-wrap">
+        <input type="text" id="orders-search-input" class="search-input" placeholder="Mijoz yoki ID bo'yicha qidirish..." oninput="filterOrdersList()">
+      </div>
+      
+      <div class="filter-chips" id="orders-filter-chips">
+        <button class="chip active" onclick="setOrderFilter('all', this)">Barchasi</button>
+        <button class="chip" onclick="setOrderFilter('Kutilmoqda', this)">⏳ Kutilmoqda</button>
+        <button class="chip" onclick="setOrderFilter('Tayyorlanmoqda', this)">⚡ Ishlanmoqda</button>
+        <button class="chip" onclick="setOrderFilter('Yetkazildi', this)">✓ Yetkazildi</button>
+        <button class="chip" onclick="setOrderFilter('Qaytarildi', this)">↩️ Bekor</button>
+      </div>
+
       <div id="orders-detail-list"></div>
 
-      <p class="sec-label">Oylik statistika</p>
+      <p class="sec-label" style="margin-top:24px">Oylik buyurtmalar statistikasi</p>
       <div class="stat-grid">
-        <div class="stat-card blue">
+        <div class="stat-card gold">
           <div class="sc-icon">📋</div>
           <div class="sc-val" id="orders-stat-total">0</div>
           <div class="sc-label">Jami buyurtmalar</div>
@@ -128,87 +165,125 @@
   </div>
 
   <!-- ════════════════════════════════════════
-       4. DETAIL: TOVARLAR (OMBOR)
+       4. DETAIL: XARAJATLAR (EXPENSES)
+  ════════════════════════════════════════ -->
+  <div id="detail-expenses" class="detail-screen">
+    <div class="detail-header">
+      <button class="back-btn" onclick="closeDetail()">←</button>
+      <div style="flex:1;">
+        <div class="detail-title">💸 Xarajatlar & Chiqimlar</div>
+        <div class="detail-subtitle" id="expenses-detail-subtitle">Yuklanmoqda...</div>
+      </div>
+      <button class="header-action-btn" onclick="showAddExpenseForm()">+ Chiqim</button>
+    </div>
+    <div class="detail-body">
+      <div class="summary-banner" style="background:rgba(255,69,58,0.08); border-color:rgba(255,69,58,0.25); margin-bottom:16px;">
+        <div class="sb-left">
+          <div class="sb-label" style="color:var(--text2)">Jami Operatsion Xarajatlar</div>
+          <div class="sb-val" id="expenses-total-banner" style="color:#ff6b6b">0 UZS</div>
+          <div class="sb-sub" id="expenses-count-banner" style="color:var(--muted)">0 ta xarajat yozuvi</div>
+        </div>
+      </div>
+
+      <p class="sec-label">Xarajat toifalari bo'yicha</p>
+      <div id="expenses-category-breakdown" class="wide-card" style="margin-bottom:16px;"></div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <p class="sec-label" style="margin:0;">Barcha xarajatlar ro'yxati</p>
+        <button onclick="openDeleteModal('expenses')" class="icon-text-btn">🗑️ O'chirish</button>
+      </div>
+      <div id="expenses-detail-list"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       5. DETAIL: TOVARLAR VA NFC OMBOR
   ════════════════════════════════════════ -->
   <div id="detail-products" class="detail-screen">
     <div class="detail-header">
       <button class="back-btn" onclick="closeDetail()">←</button>
-      <div>
-        <div class="detail-title" style="color:var(--text)">📦 Tovarlar ombori</div>
+      <div style="flex:1;">
+        <div class="detail-title">💳 NFC Form Faktorlar & Ombor</div>
         <div class="detail-subtitle" id="products-detail-subtitle">Yuklanmoqda...</div>
       </div>
+      <button class="header-action-btn" onclick="showAddStockForm()">📥 Kirim</button>
     </div>
     <div class="detail-body">
-      <div style="margin-bottom: 16px;">
-        <button class="btn-primary" onclick="showAddStockForm()">📥 Omborga Tovar Kirim qilish</button>
+      <div class="quick-action-row" style="margin-bottom: 16px;">
+        <button class="btn-primary" onclick="showAddStockForm()">📥 Omborga Tovar Kirim Qilish</button>
+        <button class="btn-secondary" onclick="showAddProductForm()">+ Yangi Form-faktor</button>
       </div>
 
-      <p class="sec-label">Ombor holati</p>
-      <div class="wide-card" style="background:var(--teal-bg);border-color:var(--teal-border)">
+      <p class="sec-label">NFC Form Faktorlari (5 xil turi)</p>
+      <div class="wide-card" style="background:var(--surface2); border-color:var(--border2)">
         <div id="products-detail-list"></div>
       </div>
 
-      <p class="sec-label">Bu oy kirim / chiqim</p>
+      <p class="sec-label">Ombor balansi va aylanma</p>
       <div class="stat-grid">
-        <div class="stat-card teal">
-          <div class="sc-icon">⬇️</div>
-          <div class="sc-val">+410</div>
-          <div class="sc-label">Kirim (birlik)</div>
+        <div class="stat-card gold">
+          <div class="sc-icon">📦</div>
+          <div class="sc-val" id="products-stat-stock">0</div>
+          <div class="sc-label">Jami kartalar (dona)</div>
         </div>
-        <div class="stat-card coral">
-          <div class="sc-icon">⬆️</div>
-          <div class="sc-val" id="products-stat-chiqim">−0</div>
-          <div class="sc-label">Chiqim (birlik)</div>
+        <div class="stat-card teal">
+          <div class="sc-icon">🚀</div>
+          <div class="sc-val" id="products-stat-chiqim">0</div>
+          <div class="sc-label">Sotilganlar (dona)</div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ════════════════════════════════════════
-       5. DETAIL: MIJOZLAR
+       6. DETAIL: MIJOZLAR BAZASI
   ════════════════════════════════════════ -->
   <div id="detail-clients" class="detail-screen">
     <div class="detail-header">
       <button class="back-btn" onclick="closeDetail()">←</button>
-      <div>
-        <div class="detail-title" style="color:var(--text)">👤 Mijozlar bazasi</div>
+      <div style="flex:1;">
+        <div class="detail-title">👥 Mijozlar & Brendlar</div>
         <div class="detail-subtitle" id="clients-detail-subtitle">Yuklanmoqda...</div>
       </div>
+      <button class="header-action-btn" onclick="showAddClientForm()">+ Mijoz</button>
     </div>
     <div class="detail-body">
-      <div style="margin-bottom: 16px;">
-        <button class="btn-primary" onclick="showAddClientForm()">👤 Yangi Mijoz Qo'shish</button>
+      <div class="search-box-wrap">
+        <input type="text" id="clients-search-input" class="search-input" placeholder="Mijoz ismi yoki kompaniya bo'yicha qidirish..." oninput="filterClientsList()">
       </div>
 
       <div id="clients-detail-card-wrap"></div>
 
-      <p class="sec-label">Barcha mijozlar</p>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; margin-bottom:8px;">
+        <p class="sec-label" style="margin:0;">Barcha mijozlar</p>
+        <button onclick="openDeleteModal('clients')" class="icon-text-btn">🗑️ O'chirish</button>
+      </div>
       <div id="clients-detail-list"></div>
     </div>
   </div>
 
   <!-- ════════════════════════════════════════
-       6. DETAIL: QARZLAR (NASIYA)
+       7. DETAIL: QARZLAR (NASIYA)
   ════════════════════════════════════════ -->
   <div id="detail-debts" class="detail-screen">
     <div class="detail-header">
       <button class="back-btn" onclick="closeDetail()">←</button>
       <div>
-        <div class="detail-title" style="color:var(--text)">💸 Qarzlar (Nasiya)</div>
+        <div class="detail-title">💸 Nasiya & Qarz Daftari</div>
         <div class="detail-subtitle" id="debts-detail-subtitle">Yuklanmoqda...</div>
       </div>
     </div>
     <div class="detail-body">
       <div style="margin-bottom: 16px;">
-        <button class="btn-primary" style="background:var(--text); color:var(--bg);" onclick="showCollectPaymentForm()">💳 To'lov Qabul Qilish</button>
+        <button class="btn-primary" style="background:var(--gold); color:#000; font-weight:700;" onclick="showCollectPaymentForm()">💳 Qarz To'lovini Qabul Qilish</button>
       </div>
 
-      <p class="sec-label">Umumiy holat</p>
+      <p class="sec-label">Umumiy nasiya holati</p>
       <div class="stat-grid" style="margin-bottom:14px">
         <div class="stat-card orange">
           <div class="sc-icon">👥</div>
           <div class="sc-val" id="debts-stat-count">0</div>
-          <div class="sc-label">Qarzli mijozlar</div>
+          <div class="sc-label">Qarzdor mijozlar</div>
         </div>
         <div class="stat-card orange">
           <div class="sc-icon">💰</div>
@@ -217,45 +292,62 @@
         </div>
       </div>
 
-      <p class="sec-label" style="margin-top:24px">Qarz ro'yxati</p>
-      <div class="wide-card" style="background:var(--orange-bg);border-color:var(--orange-border)">
+      <p class="sec-label" style="margin-top:24px">Qarzdorlar ro'yxati</p>
+      <div class="wide-card" style="background:rgba(255,159,10,0.06); border-color:rgba(255,159,10,0.25)">
         <div id="debts-detail-list"></div>
       </div>
     </div>
   </div>
 
   <!-- ════════════════════════════════════════
-       7. DETAIL: ANALITIKA
+       8. DETAIL: MOLIYA VA ANALITIKA
   ════════════════════════════════════════ -->
   <div id="detail-analytics" class="detail-screen">
     <div class="detail-header">
       <button class="back-btn" onclick="closeDetail()">←</button>
       <div>
-        <div class="detail-title" style="color:var(--text)">📈 Analitika va Grafik</div>
+        <div class="detail-title">📈 Moliya & Biznes Analitika</div>
         <div class="detail-subtitle" id="analytics-detail-subtitle">Yuklanmoqda...</div>
       </div>
     </div>
     <div class="detail-body">
-      <p class="sec-label">Foyda hisobi</p>
-      <div class="wide-card" style="background:var(--green-bg);border-color:var(--green-border)">
-        <div class="info-row">
-          <span class="ir-label">Jami kirim</span>
-          <span class="ir-val" id="analytics-stat-kirim" style="color:var(--text)">0 UZS</span>
+      <!-- Financial Profit Statement -->
+      <div class="financial-card">
+        <div class="fc-header">
+          <span class="fc-badge">MOLIYAVIY HISOBOT</span>
+          <span class="fc-margin" id="analytics-stat-margin">Marja: 0%</span>
         </div>
-        <div class="info-row">
-          <span class="ir-label">Taxminiy xarajatlar</span>
-          <span class="ir-val" id="analytics-stat-xarajat" style="color:var(--muted)">0 UZS</span>
+        <div class="fc-main-row">
+          <div>
+            <div class="fc-label">Haqiqiy Sof Foyda</div>
+            <div class="fc-profit" id="analytics-stat-foyda">0 UZS</div>
+          </div>
         </div>
-        <div class="info-row">
-          <span class="ir-label">Sof foyda (40%)</span>
-          <span class="ir-val" id="analytics-stat-foyda" style="color:var(--text);font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif">0 UZS</span>
+        <div class="fc-divider"></div>
+        <div class="fc-grid">
+          <div class="fc-sub-item">
+            <span class="fcs-label">🟢 Jami Kirim (Tushum):</span>
+            <span class="fcs-val" id="analytics-stat-kirim">0 UZS</span>
+          </div>
+          <div class="fc-sub-item">
+            <span class="fcs-label">🟡 Xomashyo Tannarxi:</span>
+            <span class="fcs-val" id="analytics-stat-tannarx">0 UZS</span>
+          </div>
+          <div class="fc-sub-item">
+            <span class="fcs-label">🔴 Operatsion Chiqimlar:</span>
+            <span class="fcs-val" id="analytics-stat-xarajat">0 UZS</span>
+          </div>
+          <div class="fc-sub-item">
+            <span class="fcs-label">⚖️ Jami Xarajatlar:</span>
+            <span class="fcs-val" id="analytics-stat-all-costs" style="color:#ff6b6b">0 UZS</span>
+          </div>
         </div>
       </div>
 
-      <p class="sec-label">Sotuv grafigi</p>
+      <p class="sec-label">Sotuvlar dinamikasi</p>
       <div class="chart-wrap">
         <div class="chart-header">
-          <div class="chart-title">Haftalik sotuv (mln UZS)</div>
+          <div class="chart-title">Sotuv hajmi (mln UZS)</div>
           <div class="chart-tabs">
             <button class="chart-tab active" id="tab-chart-week" onclick="switchChart('week',this)">Hafta</button>
             <button class="chart-tab" id="tab-chart-month" onclick="switchChart('month',this)">Oy</button>
@@ -265,15 +357,15 @@
         <div class="chart-labels" id="chart-labels-detail"></div>
       </div>
 
-      <p class="sec-label font-weight-700">Top sotilgan tovarlar</p>
-      <div class="wide-card" style="background:var(--green-bg);border-color:var(--green-border)">
+      <p class="sec-label">Eng ko'p sotilgan NFC Form Faktorlar</p>
+      <div class="wide-card" style="background:var(--surface2); border-color:var(--border2)">
         <div id="analytics-top-products"></div>
       </div>
     </div>
   </div>
 
   <!-- ════════════════════════════════════════
-       8. DYNAMIC BOTTOM SHEET / MODAL CONTAINER
+       9. DYNAMIC BOTTOM SHEET / MODAL CONTAINER
   ════════════════════════════════════════ -->
   <div id="global-modal" class="modal-backdrop" onclick="handleBackdropClick(event)">
     <div class="modal-sheet">
