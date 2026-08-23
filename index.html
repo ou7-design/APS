@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <meta name="theme-color" content="#070709"/>
+  <meta name="theme-color" content="#171717"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <link rel="apple-touch-icon" href="icon.svg"/>
@@ -11,12 +11,14 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 
   <link rel="manifest" href="manifest.json"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+
+<div class="app-shell">
 
   <!-- Offline status indicator -->
   <div id="offline-banner" class="offline-banner">
@@ -29,14 +31,15 @@
   <div id="pin-screen" class="screen active">
     <div class="pin-logo-wrap">
       <div class="pin-brand-icon">
-        <svg viewBox="0 0 512 512" width="68" height="68" stroke="currentColor" fill="none" stroke-width="40" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 512 512" width="76" height="76" stroke="currentColor" fill="none" stroke-width="40" stroke-linecap="round" stroke-linejoin="round">
           <path d="M 162, 360 L 162, 152 C 170, 172 188, 195 218, 206 C 292, 216 352, 272 352, 360" />
           <path d="M 352, 152 L 352, 360" />
           <path d="M 212, 252 C 266, 252 310, 296 310, 360" />
           <path d="M 212, 306 C 242, 306 264, 328 264, 360" />
         </svg>
       </div>
-      <div class="pin-tagline">NFC PRIME</div>
+      <h1 class="pin-tagline">NFC PRIME</h1>
+      <p class="pin-subtext">Xavfsizlik kodi (7777)</p>
     </div>
 
     <div class="pin-dots" id="pin-dots">
@@ -58,7 +61,11 @@
       <button class="pin-key" data-v="9">9</button>
       <button class="pin-key empty"></button>
       <button class="pin-key" data-v="0">0</button>
-      <button class="pin-key del" id="del-btn">⌫</button>
+      <button class="pin-key del" id="del-btn" title="O'chirish">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m18 9-6 6"/><path d="m12 9 6 6"/><path d="M10 5.5A2.5 2.5 0 0 0 8 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2.5 2.5 0 0 0 2-1.5L22 12Z"/>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -66,52 +73,76 @@
        2. APP CORE SCREEN
   ════════════════════════════════════════ -->
   <div id="app-screen" class="screen">
-    <div class="app-header">
+    <header class="app-header">
       <div class="header-left">
         <div class="header-logo-icon">
-          <svg viewBox="0 0 512 512" width="24" height="24" stroke="currentColor" fill="none" stroke-width="42" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Asl NFC PRIME Logotipi -->
+          <svg viewBox="0 0 512 512" width="26" height="26" stroke="currentColor" fill="none" stroke-width="42" stroke-linecap="round" stroke-linejoin="round">
             <path d="M 162, 360 L 162, 152 C 170, 172 188, 195 218, 206 C 292, 216 352, 272 352, 360" />
             <path d="M 352, 152 L 352, 360" />
             <path d="M 212, 252 C 266, 252 310, 296 310, 360" />
             <path d="M 212, 306 C 242, 306 264, 328 264, 360" />
           </svg>
         </div>
-        <span class="header-brand-name">NFC PRIME</span>
+        <h1 class="header-brand-name">NFC PRIME</h1>
       </div>
       <div class="header-right">
         <div class="header-time" id="hdr-time">--:--</div>
+        <button class="header-icon-btn" id="hdr-search-btn" onclick="openGlobalSearch()" title="Qidiruv">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+        </button>
         <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Mavzu">☀️</button>
       </div>
-    </div>
+    </header>
 
-    <div class="app-body" id="app-body"></div>
+    <main class="app-body" id="app-body"></main>
 
-    <button class="fab" id="fab-btn" title="Qo'shish">+</button>
+    <button class="fab" id="fab-btn" title="Qo'shish">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14"/><path d="M12 5v14"/>
+      </svg>
+    </button>
 
     <nav class="bottom-nav">
       <button class="nav-item active" data-tab="dashboard">
-        <span class="ni-icon">📊</span>
+        <svg class="ni-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+        </svg>
         <span class="ni-label">Panel</span>
       </button>
       <button class="nav-item" data-tab="orders">
-        <span class="ni-icon">📋</span>
+        <div class="nav-icon-wrap">
+          <svg class="ni-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v.5"/><path d="M12 6v.5"/>
+          </svg>
+          <span class="nav-badge" id="orders-badge" style="display:none;">0</span>
+        </div>
         <span class="ni-label">Buyurtma</span>
-        <span class="nav-badge" id="orders-badge" style="display:none;">0</span>
       </button>
       <button class="nav-item" data-tab="expenses">
-        <span class="ni-icon">💸</span>
+        <svg class="ni-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>
+        </svg>
         <span class="ni-label">Xarajat</span>
       </button>
       <button class="nav-item" data-tab="products">
-        <span class="ni-icon">💳</span>
+        <svg class="ni-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
+        </svg>
         <span class="ni-label">Ombor</span>
       </button>
       <button class="nav-item" data-tab="clients">
-        <span class="ni-icon">👥</span>
+        <svg class="ni-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
         <span class="ni-label">Mijoz</span>
       </button>
       <button class="nav-item" data-tab="analytics">
-        <span class="ni-icon">📈</span>
+        <svg class="ni-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+        </svg>
         <span class="ni-label">Analitika</span>
       </button>
     </nav>
@@ -187,9 +218,7 @@
       <button class="header-action-btn" onclick="showAddStockForm()">+ Kirim</button>
     </div>
     <div class="detail-body">
-      <div class="wide-card">
-        <div id="products-detail-list"></div>
-      </div>
+      <div id="products-detail-list" class="product-card-grid"></div>
     </div>
   </div>
 
@@ -322,6 +351,8 @@
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
+
+</div> <!-- /.app-shell -->
 
   <script src="app.js"></script>
 </body>

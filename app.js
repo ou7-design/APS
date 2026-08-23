@@ -550,7 +550,7 @@ document.querySelectorAll('.nav-item').forEach(btn => {
 });
 
 // ══════════════════════════════════════════
-// TAB CONTENT RENDERERS (CLEAN & MINIMAL)
+// TAB CONTENT RENDERERS (OBSIDIAN & GOLD)
 // ══════════════════════════════════════════
 function getTabContent(tab) {
   switch(tab) {
@@ -570,7 +570,7 @@ function dashboardContent() {
   let jamiQarzSum = 0;
   State.clients.forEach(c => { if (c.debt > 0) jamiQarzSum += c.debt; });
 
-  const recentOrders = State.orders.slice(0, 4).map(o => renderOrderSingleItem(o)).join('') || `<div style="color:var(--text-dim);font-size:12px;text-align:center;padding:16px 0;">Buyurtmalar yo'q</div>`;
+  const recentOrders = State.orders.slice(0, 5).map(o => renderOrderSingleItem(o)).join('') || `<div style="color:var(--color-muted);font-size:12px;text-align:center;padding:20px 0;">Buyurtmalar yo'q</div>`;
 
   return `
     <div class="summary-banner" onclick="openDetail('analytics')" style="cursor:pointer;">
@@ -581,9 +581,9 @@ function dashboardContent() {
         </div>
       </div>
       <div class="sb-sub-stats">
-        <span>Kirim: <b>${(fin.totalRevenue/1000000).toFixed(2)}M</b></span>
-        <span>Xarajat: <b>${(fin.totalAllCosts/1000000).toFixed(2)}M</b></span>
-        <span>Marja: <b>${fin.marginPercent}%</b></span>
+        <div class="sb-stat-chip">Kirim: <b>${(fin.totalRevenue/1000000).toFixed(2)}M</b></div>
+        <div class="sb-stat-chip">Xarajat: <b>${(fin.totalAllCosts/1000000).toFixed(2)}M</b></div>
+        <div class="sb-stat-chip">Marja: <b>${fin.marginPercent}%</b></div>
       </div>
     </div>
 
@@ -606,7 +606,7 @@ function dashboardContent() {
       </div>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; margin-bottom:6px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; margin-bottom:2px;">
       <p class="sec-label" style="margin:0;">Oxirgi buyurtmalar</p>
       <button onclick="openDetail('orders')" class="icon-text-btn">Barchasi →</button>
     </div>
@@ -621,24 +621,67 @@ let currentOrderFilter = 'all';
 let orderSearchQuery = '';
 
 function ordersTabContent() {
-  const activeOrders = State.orders;
-  const listHtml = activeOrders.slice(0, 6).map(ord => renderOrderSingleItem(ord)).join('') || `<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:12px;">Buyurtmalar yo'q</div>`;
+  const filtered = State.orders.filter(o => {
+    const matchesFilter = currentOrderFilter === 'all' || o.status === currentOrderFilter;
+    const matchesSearch = !orderSearchQuery || 
+      o.clientName.toLowerCase().includes(orderSearchQuery.toLowerCase()) || 
+      o.id.toLowerCase().includes(orderSearchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+
+  const listHtml = filtered.map(ord => renderOrderSingleItem(ord)).join('') || `<div style="text-align:center;padding:24px;color:var(--color-muted);font-size:12.5px;">Buyurtmalar topilmadi</div>`;
 
   return `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <p class="sec-label" style="margin:0;">Buyurtmalar (${State.orders.length})</p>
-      <button onclick="showAddOrderForm()" class="icon-text-btn" style="color:var(--gold);">+ Yangi</button>
+    <div class="section-header">
+      <h2 class="section-title">Buyurtmalar</h2>
+      <button class="btn-gold" onclick="showAddOrderForm()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/><path d="M12 5v14"/>
+        </svg>
+        Yangi
+      </button>
     </div>
+
+    <div class="search-box-wrap">
+      <input type="text" class="search-input" placeholder="Buyurtma yoki mijozni qidirish..." value="${orderSearchQuery}" oninput="onTabOrderSearch(this.value)">
+    </div>
+
+    <div class="filter-chips">
+      <button class="chip ${currentOrderFilter === 'all' ? 'active' : ''}" onclick="onTabOrderFilter('all')">Barchasi</button>
+      <button class="chip ${currentOrderFilter === 'Kutilmoqda' ? 'active' : ''}" onclick="onTabOrderFilter('Kutilmoqda')">Kutilmoqda</button>
+      <button class="chip ${currentOrderFilter === 'Tayyorlanmoqda' ? 'active' : ''}" onclick="onTabOrderFilter('Tayyorlanmoqda')">Ishlanmoqda</button>
+      <button class="chip ${currentOrderFilter === 'Yetkazildi' ? 'active' : ''}" onclick="onTabOrderFilter('Yetkazildi')">Yetkazildi</button>
+      <button class="chip ${currentOrderFilter === 'Qaytarildi' ? 'active' : ''}" onclick="onTabOrderFilter('Qaytarildi')">Bekor</button>
+    </div>
+
     <div class="wide-card">
       ${listHtml}
     </div>
   `;
 }
 
+function onTabOrderSearch(val) {
+  orderSearchQuery = val.trim();
+  const body = document.getElementById('app-body');
+  if (currentTab === 'orders' && body) {
+    body.innerHTML = getTabContent('orders');
+    const input = body.querySelector('.search-input');
+    if (input) {
+      input.focus();
+      input.setSelectionRange(val.length, val.length);
+    }
+  }
+}
+
+function onTabOrderFilter(filter) {
+  currentOrderFilter = filter;
+  renderTab('orders');
+}
+
 function renderOrderSingleItem(ord) {
   const item = ord.items[0] || {};
-  const isPending = ord.status === 'Kutilmoqda' || ord.status === 'Tayyorlanmoqda';
   const isDone = ord.status === 'Yetkazildi';
+  const isCanceled = ord.status === 'Qaytarildi';
 
   return `
     <div class="order-item" onclick="showOrderActions('${ord.id}')" style="cursor:pointer;">
@@ -648,7 +691,7 @@ function renderOrderSingleItem(ord) {
       </div>
       <div class="oi-right">
         <div class="oi-sum">${ord.total.toLocaleString()} UZS</div>
-        <span class="status-pill ${isDone ? 'status-done' : (ord.status === 'Qaytarildi' ? 'status-debt' : '')}">${ord.status}</span>
+        <span class="status-pill ${isDone ? 'status-done' : (isCanceled ? 'status-debt' : '')}">${ord.status}</span>
       </div>
     </div>
   `;
@@ -664,20 +707,30 @@ function expensesTabContent() {
         <div class="oi-detail">${e.desc} • ${e.date}</div>
       </div>
       <div class="oi-right">
-        <div class="oi-sum">−${e.amount.toLocaleString()} UZS</div>
+        <div class="oi-sum" style="color:var(--color-gold);">−${e.amount.toLocaleString()} UZS</div>
       </div>
     </div>
-  `).join('') || `<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:12px;">Chiqimlar kiritilmagan</div>`;
+  `).join('') || `<div style="text-align:center;padding:24px;color:var(--color-muted);font-size:12.5px;">Chiqimlar kiritilmagan</div>`;
 
   return `
-    <div class="summary-banner">
+    <div class="section-header">
+      <h2 class="section-title">Xarajatlar</h2>
+      <button class="btn-gold" onclick="showAddExpenseForm()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/><path d="M12 5v14"/>
+        </svg>
+        Chiqim
+      </button>
+    </div>
+
+    <div class="summary-banner" onclick="openDetail('expenses')" style="cursor:pointer;">
       <div class="sb-label">Jami Chiqimlar</div>
       <div class="sb-val">${fin.totalDirectExpenses.toLocaleString()} UZS</div>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
       <p class="sec-label" style="margin:0;">Chiqimlar ro'yxati</p>
-      <button onclick="showAddExpenseForm()" class="icon-text-btn" style="color:var(--gold);">+ Chiqim</button>
+      <button onclick="openDetail('expenses')" class="icon-text-btn">Batafsil →</button>
     </div>
     <div class="wide-card">
       ${listHtml}
@@ -685,55 +738,101 @@ function expensesTabContent() {
   `;
 }
 
-// ── 4. Products Tab
+// ── 4. Products Tab (Katalog & Ombor)
 function productsTabContent() {
   const prodHtml = State.products.map(p => `
-    <div class="product-row" onclick="showAddStockForm('${p.id}')" style="cursor:pointer;">
-      <div>
-        <div class="pr-name">${p.name}</div>
-        <div class="pr-sub">${p.size} • ${p.price.toLocaleString()} UZS</div>
+    <div class="product-card" onclick="showAddStockForm('${p.id}')">
+      <div class="pc-top">
+        <div class="pc-name">${p.name}</div>
+        <span class="pc-stock-badge ${p.stock <= 15 ? 'low' : ''}">${p.stock} ${p.unit || 'dona'}</span>
       </div>
-      <div style="text-align:right;">
-        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;color:${p.stock <= 15 ? '#ff453a' : 'var(--text)'};">${p.stock} dona</div>
-        <div style="font-size:10px;color:var(--text-dim);margin-top:1px;">+ Kirim</div>
+      <div class="pc-mid">
+        <span class="pc-size-pill">${p.size || 'NFC Smart'}</span>
+        <span class="pc-price">${p.price.toLocaleString()} UZS</span>
+      </div>
+      <div class="pc-bottom">
+        <span>Tannarx: ${p.cost.toLocaleString()} UZS • Sotildi: ${p.sold || 0}</span>
+        <span class="pc-action-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14"/><path d="M12 5v14"/>
+          </svg>
+          Kirim
+        </span>
       </div>
     </div>
   `).join('');
 
   return `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <p class="sec-label" style="margin:0;">Ombor qoldiqlari</p>
-      <button onclick="showAddStockForm()" class="icon-text-btn" style="color:var(--gold);">+ Kirim Qilish</button>
+    <div class="section-header">
+      <h2 class="section-title">Katalog</h2>
+      <button class="btn-gold" onclick="showAddStockForm()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/><path d="M12 5v14"/>
+        </svg>
+        Mahsulot
+      </button>
     </div>
-    <div class="wide-card">
+
+    <div class="product-card-grid">
       ${prodHtml}
     </div>
   `;
 }
 
 // ── 5. Clients Tab
+let tabClientSearchQuery = '';
+
 function clientsTabContent() {
-  const clientsHtml = State.clients.map(c => `
+  const filtered = State.clients.filter(c => {
+    return !tabClientSearchQuery || 
+      c.name.toLowerCase().includes(tabClientSearchQuery.toLowerCase()) || 
+      c.phone.includes(tabClientSearchQuery);
+  });
+
+  const clientsHtml = filtered.map(c => `
     <div class="order-item" onclick="showClientHistory('${c.id}')" style="cursor:pointer;">
       <div class="oi-body">
         <div class="oi-name">${c.name}</div>
-        <div class="oi-detail">${c.phone}</div>
+        <div class="oi-detail">${c.phone} • ${c.address}</div>
       </div>
       <div class="oi-right">
-        ${c.debt > 0 ? `<span class="status-pill status-debt">${c.debt.toLocaleString()} UZS qarz</span>` : `<span style="font-size:11px;color:var(--text-dim);">Qarzsiz</span>`}
+        ${c.debt > 0 ? `<span class="status-pill status-debt">${c.debt.toLocaleString()} UZS qarz</span>` : `<span class="status-pill status-done">Qarzsiz</span>`}
       </div>
     </div>
-  `).join('');
+  `).join('') || `<div style="text-align:center;padding:24px;color:var(--color-muted);font-size:12.5px;">Mijozlar topilmadi</div>`;
 
   return `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <p class="sec-label" style="margin:0;">Mijozlar bazasi</p>
-      <button onclick="showAddClientForm()" class="icon-text-btn" style="color:var(--gold);">+ Yangi</button>
+    <div class="section-header">
+      <h2 class="section-title">Mijozlar</h2>
+      <button class="btn-gold" onclick="showAddClientForm()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/><path d="M12 5v14"/>
+        </svg>
+        Mijoz
+      </button>
     </div>
+
+    <div class="search-box-wrap">
+      <input type="text" class="search-input" placeholder="Ism yoki telefon raqam..." value="${tabClientSearchQuery}" oninput="onTabClientSearch(this.value)">
+    </div>
+
     <div class="wide-card">
       ${clientsHtml}
     </div>
   `;
+}
+
+function onTabClientSearch(val) {
+  tabClientSearchQuery = val.trim();
+  const body = document.getElementById('app-body');
+  if (currentTab === 'clients' && body) {
+    body.innerHTML = getTabContent('clients');
+    const input = body.querySelector('.search-input');
+    if (input) {
+      input.focus();
+      input.setSelectionRange(val.length, val.length);
+    }
+  }
 }
 
 // ── 6. Analytics Tab
@@ -741,11 +840,15 @@ function analyticsTabContent() {
   const fin = State.getFinancials();
 
   return `
+    <div class="section-header">
+      <h2 class="section-title">Analitika</h2>
+    </div>
+
     <div class="summary-banner">
       <div class="sb-label">Sof Foyda</div>
       <div class="sb-val">${fin.netProfit.toLocaleString()} UZS</div>
       <div class="sb-sub-stats">
-        <span>Rentabellik: <b>${fin.marginPercent}%</b></span>
+        <div class="sb-stat-chip">Rentabellik: <b>${fin.marginPercent}%</b></div>
       </div>
     </div>
 
@@ -771,7 +874,7 @@ function analyticsTabContent() {
     <p class="sec-label">Sotuv grafigi</p>
     <div class="chart-wrap">
       <div class="chart-header">
-        <div class="chart-title">Haftalik hajm</div>
+        <div class="chart-title">Hajm dinamikasi</div>
         <div class="chart-tabs">
           <button class="chart-tab active" id="tab-chart-week-inside" onclick="switchChart('week',this)">Hafta</button>
           <button class="chart-tab" id="tab-chart-month-inside" onclick="switchChart('month',this)">Oy</button>
@@ -781,6 +884,84 @@ function analyticsTabContent() {
       <div class="chart-labels" id="chart-labels-tab"></div>
     </div>
   `;
+}
+
+// ── Global Search Modal Handler
+function openGlobalSearch() {
+  const content = `
+    <div class="search-box-wrap">
+      <input type="text" id="global-search-input" class="search-input" placeholder="Mijoz, buyurtma yoki karta qidirish..." oninput="filterGlobalSearch(this.value)" autofocus>
+    </div>
+    <div id="global-search-results" style="max-height: 50vh; overflow-y: auto; margin-top: 10px;">
+      <div style="text-align:center; padding: 20px; color: var(--color-muted); font-size: 12px;">Qidirish uchun biror narsa yozing</div>
+    </div>
+  `;
+  openModal("Qidiruv", content);
+  setTimeout(() => {
+    const input = document.getElementById('global-search-input');
+    if (input) input.focus();
+  }, 100);
+}
+
+function filterGlobalSearch(query) {
+  const q = query.toLowerCase().trim();
+  const res = document.getElementById('global-search-results');
+  if (!res) return;
+
+  if (!q) {
+    res.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--color-muted); font-size: 12px;">Qidirish uchun biror narsa yozing</div>`;
+    return;
+  }
+
+  const matchedOrders = State.orders.filter(o => o.id.toLowerCase().includes(q) || o.clientName.toLowerCase().includes(q));
+  const matchedClients = State.clients.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q));
+  const matchedProds = State.products.filter(p => p.name.toLowerCase().includes(q));
+
+  let html = '';
+
+  if (matchedOrders.length > 0) {
+    html += `<p class="sec-label" style="margin-top:4px;">Buyurtmalar (${matchedOrders.length})</p><div class="wide-card">`;
+    html += matchedOrders.map(o => renderOrderSingleItem(o)).join('');
+    html += `</div>`;
+  }
+
+  if (matchedClients.length > 0) {
+    html += `<p class="sec-label">Mijozlar (${matchedClients.length})</p><div class="wide-card">`;
+    html += matchedClients.map(c => `
+      <div class="order-item" onclick="closeModal(); showClientHistory('${c.id}')" style="cursor:pointer;">
+        <div class="oi-body">
+          <div class="oi-name">${c.name}</div>
+          <div class="oi-detail">${c.phone}</div>
+        </div>
+        <div class="oi-right">
+          <div class="oi-sum">${c.totalSpend.toLocaleString()} UZS</div>
+        </div>
+      </div>
+    `).join('');
+    html += `</div>`;
+  }
+
+  if (matchedProds.length > 0) {
+    html += `<p class="sec-label">Ombor kartalari (${matchedProds.length})</p><div class="wide-card">`;
+    html += matchedProds.map(p => `
+      <div class="product-row" onclick="closeModal(); showAddStockForm('${p.id}')" style="cursor:pointer;">
+        <div>
+          <div class="pr-name">${p.name}</div>
+          <div class="pr-sub">${p.size} • ${p.price.toLocaleString()} UZS</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--color-gold);">${p.stock} dona</div>
+        </div>
+      </div>
+    `).join('');
+    html += `</div>`;
+  }
+
+  if (!html) {
+    res.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--color-muted); font-size: 12px;">Hech narsa topilmadi</div>`;
+  } else {
+    res.innerHTML = html;
+  }
 }
 
 // ══════════════════════════════════════════
@@ -951,14 +1132,18 @@ function renderProductsDetailList() {
   if (!container) return;
 
   container.innerHTML = State.products.map(p => `
-    <div class="product-row" onclick="showAddStockForm('${p.id}')" style="cursor:pointer;">
-      <div>
-        <div class="pr-name">${p.name}</div>
-        <div class="pr-sub">${p.size} • Tannarx: ${p.cost.toLocaleString()} UZS</div>
+    <div class="product-card" onclick="showAddStockForm('${p.id}')">
+      <div class="pc-top">
+        <div class="pc-name">${p.name}</div>
+        <span class="pc-stock-badge ${p.stock <= 15 ? 'low' : ''}">${p.stock} ${p.unit || 'dona'}</span>
       </div>
-      <div style="text-align:right;">
-        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;color:${p.stock <= 15 ? '#ff453a' : 'var(--text)'};">${p.stock} dona</div>
-        <div style="font-size:10px;color:var(--gold);margin-top:1px;">+ Kirim</div>
+      <div class="pc-mid">
+        <span class="pc-size-pill">${p.size || 'NFC Smart'}</span>
+        <span class="pc-price">${p.price.toLocaleString()} UZS</span>
+      </div>
+      <div class="pc-bottom">
+        <span>Tannarx: ${p.cost.toLocaleString()} UZS • Sotildi: ${p.sold || 0}</span>
+        <span class="pc-action-link">+ Kirim qilish</span>
       </div>
     </div>
   `).join('');

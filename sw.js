@@ -1,4 +1,4 @@
-const CACHE_NAME = 'np-prime-cache-v2';
+const CACHE_NAME = 'np-prime-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,7 +6,7 @@ const ASSETS_TO_CACHE = [
   './app.js',
   './manifest.json',
   './icon.svg',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@600;700;800&display=swap'
+  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@600;700;800&display=swap'
 ];
 
 // Install Event
